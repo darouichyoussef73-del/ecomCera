@@ -1,7 +1,8 @@
-
+'use client'
 import Link from 'next/link'
 import React from 'react'
 import Image from "next/image";
+import { useEffect } from 'react';
 
 // import Footer from '@/components/footer'
 import Navbar from './components/navbar'
@@ -9,6 +10,22 @@ import Footer from './components/footer'
 import ScrollItems from './components/scrollItems';
 import Card from './components/product'
 const page = () => {
+   useEffect(() => {
+  const boxes = document.querySelectorAll(".box");
+
+  const handleScroll = () => {
+    boxes.forEach((box) => {
+      const rect = box.getBoundingClientRect();
+
+      if (rect.top < window.innerHeight * 0.7) {
+        box.classList.add("active");
+      }
+    });
+  };
+
+  window.addEventListener("scroll", handleScroll);
+  return () => window.removeEventListener("scroll", handleScroll);
+}, []);
   return (
     < >
       
@@ -20,8 +37,12 @@ const page = () => {
    
       {/* Background Image */}
       <div className="absolute inset-0">
-       
-      
+       <img
+        src="image source"
+        className="img-fluid rounded-top"
+        alt=""
+       />
+             
         </div>
     
 
@@ -29,8 +50,8 @@ const page = () => {
       <div className="relative z-10 container mx-auto px-6 lg:px-12 min-h-screen flex items-end pb-16">
         <div className="grid lg:grid-cols-2 gap-12 w-full items-end">
           {/* Left Content */}
-          <div className="max-w-2xl">
-            <h1 className="text-5xl md:text-7xl font-bold text-black leading-tight tracking-tight">
+          <div className="max-w-2xl mb-10">
+            <h1 className="text-5xl md:text-7xl font-bold text-black leading-tight tracking-tight ">
               A calmer way to care for your smile.
             </h1>
 
@@ -39,14 +60,7 @@ const page = () => {
               deliver confident, lasting results.
             </p>
 
-            <div className="mt-10">
-              <Link
-                href="/contact"
-                className="inline-flex items-center rounded-full bg-white px-8 py-4 text-black font-medium transition hover:bg-gray-200"
-              >
-                Schedule a Visit
-              </Link>
-            </div>
+          
           </div>
 
           {/* Right Content */}
@@ -101,18 +115,18 @@ const page = () => {
     <p className="mt-10 max-w-2xl text-black/80">
       At Luzen, we believe that great design goes beyond aesthetics — it should tell your story, support your lifestyle, and inspire daily living.
     </p>
-
-    <div className="mt-16 grid md:grid-cols-2 gap-8">
-      <figure className="group">
-        <div className="aspect-[4/5] overflow-hidden rounded-3xl bg-sand">
-          <img src="/images/img2.jpeg" alt="" className="w-full h-full object-cover group-hover:scale-105 transition duration-700"/>
+   
+    <div className="   mt-16 grid md:grid-cols-2 gap-8  ">
+      <figure className="group ">
+        <div id='box' className=" box aspect-[4/5] overflow-hidden rounded-3xl bg-sand">
+          <img src="/images/img2.jpeg" alt="" loading='lazy' className="w-full h-full object-cover group-hover:scale-105 transition duration-700"/>
         </div>
         <figcaption className="mt-4 flex justify-between text-sm text-black uppercase tracking-widest">
           <span>Luzen's 001</span><span>—</span>
         </figcaption>
       </figure>
       <figure className="group md:mt-24">
-        <div className="aspect-[4/5] overflow-hidden rounded-3xl bg-sand">
+        <div id='box' className=" box aspect-[4/5] overflow-hidden rounded-3xl bg-sand">
           <img src="/images/img1.jpeg" alt="" className="w-full h-full object-cover group-hover:scale-105 transition duration-700"/>
         </div>
         <figcaption className="mt-4 flex justify-between text-sm text-black uppercase tracking-widest">
@@ -127,7 +141,7 @@ const page = () => {
   <div className="mx-auto max-w-7xl">
     <div className="flex items-center gap-4 text-black text-sm uppercase tracking-[0.25em] mb-6">
       <span className="font-display text-2xl ">04</span>
-      <span>— Events</span>
+      <span>Services</span>
     </div>
     <h2 className="font-display text-4xl md:text-6xl max-w-3xl leading-[1.05] ">
       Discover our recent events and achievements.
@@ -137,18 +151,19 @@ const page = () => {
     </p>
 
     <div className="mt-16 grid md:grid-cols-3 gap-6">
-      <div className="md:row-span-2 aspect-[3/4] md:aspect-auto rounded-3xl overflow-hidden">
+      <div id='box' className="box md:row-span-2 aspect-[3/4] md:aspect-auto rounded-3xl overflow-hidden">
         <img src="https://cdn.prod.website-files.com/68de9f894df3c35c556330f6/68e5405301886a216066c589_event-main-img.avif" className="w-full h-full object-cover"/>
       </div>
       <div className="md:col-span-2 grid sm:grid-cols-2 gap-6">
-        <article className="bg-black rounded-3xl overflow-hidden">
+        <article id='box' className=" box bg-black rounded-3xl overflow-hidden">
           <img src="https://cdn.prod.website-files.com/68de9f894df3c35c556330f6/68e547017e3a4ee99da4637a_event-01.avif" className="w-full aspect-[4/3] object-cover"/>
           <div className="p-6">
             <div className="text-black text-xs uppercase tracking-widest">01 · Sep 15, 2024</div>
             <h3 className="font-display text-xl  mt-2">Present new objectives and new talents.</h3>
           </div>
         </article>
-        <article className="bg-black rounded-3xl overflow-hidden">
+        
+        <article id='box' className="box bg-black rounded-3xl overflow-hidden">
           <img src="https://cdn.prod.website-files.com/68de9f894df3c35c556330f6/68e54701363b6dc9e71939b7_event-02.avif" className="w-full aspect-[4/3] object-cover"/>
           <div className="p-6">
             <div className="text-black text-xs uppercase tracking-widest">02 · Sep 15, 2024</div>
@@ -160,23 +175,24 @@ const page = () => {
             <div className="font-display text-3xl md:text-4xl leading-tight">Your idea · our expertise</div>
             <p className="text-black/60 mt-2 text-sm">Expert guidance and solutions for every project stage.</p>
           </div>
-          <a href="#contact" className="shrink-0 rounded-full bg-black  px-5 py-3 text-sm">Explore Services →</a>
+          <div className="mt-10">
+              <Link
+                href="/pages/services"
+                className="inline-flex items-center rounded-full bg-white px-8 py-4 text-black font-medium transition hover:bg-gray-200"
+              >
+                Explore services
+              </Link>
+            </div>
         </div>
       </div>
     </div>
   </div>
 </section>
-        {/* <section className="relative flex  h-full overflow-hidden gap-15  pt-90 items-center justify-center">
-        <div className='h-140 w-1/3 bg-gray-700 rounded-3xl ' ></div>
-        <div className='h-140 w-1/2 bg-gray-700 rounded-3xl ' ></div>
-       
-        
-          
-        </section> */}
+
         
 
         <section className="relative flex  flex-wrap h-full overflow-hidden gap-15 py-20 items-center justify-center">
-        <div className='h-140 w-1/2 pb-10 '  >
+        <div className='h-140 w-1/2 min-w-100 pb-10 '  >
        <div className="space-y-10">
         <div className="border-b border-black/15 pb-8">
           <div className="font-display text-black text-6xl">250<span className="text-black">+</span></div>
@@ -197,7 +213,7 @@ const page = () => {
       </div>
         
         </div>
-        <div className='relative h-140 w-1/3 bg-gray-700 rounded-3xl ' >
+        <div className='relative h-140 w-1/3  min-w-100  bg-gray-700 rounded-3xl mt-5' >
             <img src="/images/img1.jpeg" alt="" className="w-full h-full object-cover rounded-2xl  group-hover:scale-105 transition duration-700"/>
       
         </div>
@@ -215,9 +231,9 @@ const page = () => {
       <h2 className="font-display text-4xl md:text-5xl text-black leading-[1.05]">
         Answers to your frequently asked questions.
       </h2>
-      <div className="mt-10 aspect-[4/3] rounded-3xl overflow-hidden">
+      <div className='flex justify-center content-center'><div id='box' className="box mt-10 aspect-[4/3] rounded-3xl overflow-hidden">
         <img src="/images/img2.jpeg" className="w-full h-full object-cover"/>
-      </div>
+      </div></div>
     </div>
 
     <div className="divide-y divide-ink/10 border-y border-ink/10">
@@ -252,7 +268,7 @@ const page = () => {
       </details>
     </div>
   </div>
-</section>
+          </section>
   
     <Footer/>
     </>

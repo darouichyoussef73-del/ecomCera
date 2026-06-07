@@ -12,7 +12,7 @@ const product = () => {
       {/* Main Image */}
       <img
         src="/images/img1.jpeg"
-        alt="Anti-aging Eye Cream"
+        // alt="Anti-aging Eye Cream"
         className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-105
          
          "

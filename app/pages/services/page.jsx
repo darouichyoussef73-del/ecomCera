@@ -1,11 +1,12 @@
 import React from 'react'
 import Navbar from '../../components/navbar'
+import Footer from '@/app/components/footer'
 import Link from 'next/link'
 const page = () => {
   return (
     <>
     <Navbar/>
-     <section className="hero relative min-h-screen overflow-hidden " id=''>
+     <section className="hero relative min-h-screen  " id=''>
    
       {/* Background Image */}
       <div className="absolute inset-0">
@@ -58,6 +59,24 @@ const page = () => {
         </div>
       </div>
     </section>
+
+    <section>
+      <h1 className='font-bold text-5xl text-center text-black pt-15'>Our Services </h1>
+    <div className='w-full h-screen flex  flex-wrap justify-center items-center gap-10  '>
+      <div className='w-1/4 min-w-100   h-3/5 bg-gray-600 rounded-2xl '>
+
+      </div>
+      <div className='w-1/4 min-w-100 h-3/5 bg-gray-600 rounded-2xl'>
+
+      </div>
+      <div className='w-1/4 min-w-100 h-3/5 bg-gray-600 rounded-2xl'>
+
+      </div>
+      
+     
+    </div>
+    </section>
+    <Footer/>
     </>
   )
 }

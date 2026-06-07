@@ -30,14 +30,7 @@ const page = () => {
               deliver confident, lasting results.
             </p>
 
-            <div className="mt-10">
-              <Link
-                href="/contact"
-                className="inline-flex items-center rounded-full bg-white px-8 py-4 text-black font-medium transition hover:bg-gray-200"
-              >
-                Schedule a Visit
-              </Link>
-            </div>
+           
           </div>
 
           {/* Right Content */}
