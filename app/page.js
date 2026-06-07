@@ -94,9 +94,7 @@ const page = () => {
       </div>
         
      
-        </section>
-        
-        
+        </section> 
        {/*this is the aboute section made by khaoula */}
        <section id="about" className="py-24 md:py-32 px-6 ">
   <div className="mx-auto max-w-7xl">
@@ -118,16 +116,20 @@ const page = () => {
    
     <div className="   mt-16 grid md:grid-cols-2 gap-8  ">
       <figure className="group ">
+        <div className='flex justify-center items-center'>
         <div id='box' className=" box aspect-[4/5] overflow-hidden rounded-3xl bg-sand">
           <img src="/images/img2.jpeg" alt="" loading='lazy' className="w-full h-full object-cover group-hover:scale-105 transition duration-700"/>
+        </div>
         </div>
         <figcaption className="mt-4 flex justify-between text-sm text-black uppercase tracking-widest">
           <span>Luzen's 001</span><span>—</span>
         </figcaption>
       </figure>
       <figure className="group md:mt-24">
+          <div className='flex justify-center items-center'>
         <div id='box' className=" box aspect-[4/5] overflow-hidden rounded-3xl bg-sand">
           <img src="/images/img1.jpeg" alt="" className="w-full h-full object-cover group-hover:scale-105 transition duration-700"/>
+        </div>
         </div>
         <figcaption className="mt-4 flex justify-between text-sm text-black uppercase tracking-widest">
           <span>Luzen's 002</span><span>—</span>
@@ -151,20 +153,26 @@ const page = () => {
     </p>
 
     <div className="mt-16 grid md:grid-cols-3 gap-6">
+      <div className='flex justify-center '>
       <div id='box' className="box md:row-span-2 aspect-[3/4] md:aspect-auto rounded-3xl overflow-hidden">
         <img src="https://cdn.prod.website-files.com/68de9f894df3c35c556330f6/68e5405301886a216066c589_event-main-img.avif" className="w-full h-full object-cover"/>
       </div>
+      </div>
       <div className="md:col-span-2 grid sm:grid-cols-2 gap-6">
-        <article id='box' className=" box bg-black rounded-3xl overflow-hidden">
+        <article id='box' className="  bg-black rounded-3xl overflow-hidden">
+          <div className='flex justify-center items-center'>
           <img src="https://cdn.prod.website-files.com/68de9f894df3c35c556330f6/68e547017e3a4ee99da4637a_event-01.avif" className="w-full aspect-[4/3] object-cover"/>
+          </div>
           <div className="p-6">
             <div className="text-black text-xs uppercase tracking-widest">01 · Sep 15, 2024</div>
             <h3 className="font-display text-xl  mt-2">Present new objectives and new talents.</h3>
           </div>
         </article>
         
-        <article id='box' className="box bg-black rounded-3xl overflow-hidden">
+        <article id='box' className=" bg-black rounded-3xl overflow-hidden">
+             <div className='flex justify-center items-center'>
           <img src="https://cdn.prod.website-files.com/68de9f894df3c35c556330f6/68e54701363b6dc9e71939b7_event-02.avif" className="w-full aspect-[4/3] object-cover"/>
+          </div>
           <div className="p-6">
             <div className="text-black text-xs uppercase tracking-widest">02 · Sep 15, 2024</div>
             <h3 className="font-display text-xl  mt-2">Present new objectives and new talents.</h3>
