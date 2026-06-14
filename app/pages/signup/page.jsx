@@ -1,7 +1,50 @@
+'use client'
 import Link from 'next/link'
 import React from 'react'
+import { useState } from 'react';
 
 const page = () => {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const [message, setMessage] = useState("");
+
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/signup",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(form),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage("Account created successfully!");
+      } else {
+        setMessage(data.message || "Registration failed");
+      }
+    } catch (error) {
+      setMessage("Server error");
+    }
+  };
   return (
     <>
      <div className="min-h-screen w-full relative flex items-center justify-center overflow-hidden">
@@ -42,12 +85,13 @@ const page = () => {
           </p>
 
           {/* Form */}
-          <form className="space-y-4">
+          <form method='post' className="space-y-4">
             {/* Name */}
             <div>
               <label className="text-white/80 text-sm">Full Name</label>
               <input
                 type="text"
+                 onClick={handleChange}
                 placeholder="John Doe"
                 className="w-full mt-1 px-4 py-3 rounded-xl bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-300"
               />
@@ -58,6 +102,7 @@ const page = () => {
               <label className="text-white/80 text-sm">Email</label>
               <input
                 type="email"
+                 onClick={handleChange}
                 placeholder="you@example.com"
                 className="w-full mt-1 px-4 py-3 rounded-xl bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-300"
               />
@@ -68,6 +113,7 @@ const page = () => {
               <label className="text-white/80 text-sm">Password</label>
               <input
                 type="password"
+                 onClick={handleChange}
                 placeholder="••••••••"
                 className="w-full mt-1 px-4 py-3 rounded-xl bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-300"
               />
@@ -78,6 +124,7 @@ const page = () => {
               <label className="text-white/80 text-sm">Confirm Password</label>
               <input
                 type="password"
+                 onClick={handleChange}
                 placeholder="••••••••"
                 className="w-full mt-1 px-4 py-3 rounded-xl bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-300"
               />
@@ -86,6 +133,7 @@ const page = () => {
             {/* Button */}
             <button
               type="submit"
+            onClick={handleSubmit}
               className="w-full py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-slate-400/60 to-blue-300/60 hover:from-slate-300/70 hover:to-blue-200/70 transition-all shadow-lg"
             >
               Create Account

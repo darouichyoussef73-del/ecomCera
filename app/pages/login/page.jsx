@@ -48,6 +48,7 @@ const page = () => {
               <label className="text-white/80 text-sm">Email</label>
               <input
                 type="email"
+                
                 placeholder="you@example.com"
                 className="w-full mt-1 px-4 py-3 rounded-xl bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-300"
               />

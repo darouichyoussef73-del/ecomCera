@@ -119,6 +119,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
     <>
     <div className="min-h-screen bg-gray-50 flex">
+      <div>
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div
@@ -160,7 +161,7 @@ const [sidebarOpen, setSidebarOpen] = useState(false);
           </div>
         </div>
       </aside>
-
+</div>
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Navbar */}

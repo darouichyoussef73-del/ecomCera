@@ -132,7 +132,7 @@ const page = () => {
      <>
     <div className="min-h-screen bg-gray-50">
       {/* Top Navigation */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
+      {/* <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
@@ -158,6 +158,49 @@ const page = () => {
       <main className="flex max-w-7xl mr-auto px-4 sm:px-6 lg:pr-8 py-8">
         <div >
         <AdminNavbar/>
+        </div> */}
+           <div>
+              {/* Mobile Sidebar Overlay */}
+              {sidebarOpen && (
+                <div
+                  className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+                  onClick={() => setSidebarOpen(false)}
+                />
+              )}
+        
+              {/* Sidebar */}
+              <aside className={`
+                fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200
+                transform transition-transform duration-300 ease-in-out
+                ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+              `}>
+                <div className="h-full flex flex-col">
+                  {/* Logo */}
+                  <div className="h-16 flex items-center px-6 border-b border-gray-100">
+                    <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center mr-3">
+                      <LayoutDashboard className="w-5 h-5 text-white" />
+                    </div>
+                    <span className="text-lg font-bold text-slate-900">AdminPro</span>
+                  </div>
+        
+                  {/* Navigation */}
+                <AdminNavbar/>
+        
+                  {/* User Profile Mini */}
+                  <div className="p-4 border-t border-gray-100">
+                    <button className="flex items-center w-full px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors">
+                      <div className="w-9 h-9 rounded-full bg-slate-900 flex items-center justify-center text-white text-sm font-semibold">
+                        AD
+                      </div>
+                      <div className="ml-3 text-left flex-1">
+                        <p className="text-sm font-medium text-gray-900">Admin User</p>
+                        <p className="text-xs text-gray-500">admin@company.com</p>
+                      </div>
+                      <LogOut className="w-4 h-4 text-gray-400" />
+                    </button>
+                  </div>
+                </div>
+              </aside>
         </div>
         {/* Stats Bar */}
         <div className='pl-20'>
