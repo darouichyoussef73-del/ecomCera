@@ -1,10 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
+
 @import "tailwindcss";
 
 :root {
-
-  --background: #f5f3f4;
-
-  --foreground: #f5f3f4; 
+/* 
+  --background: #F5F0EB;
+  --foreground: #F5F0EB;  */
+  --background: #F5F0EB;
+  --foreground: #F5F0EB; 
 }
 
 @theme inline {
@@ -24,7 +27,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* font-family: Arial, Helvetica, sans-serif; */
 
 }
 html {
@@ -33,12 +36,7 @@ html {
 }
 .marquee { animation: scroll 28s linear infinite; }
   @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-.hero{
-  background-image: url('/images/back.jpg');
-  background-size: cover;
-  background-position: center;
-  border-radius: 0 0 10px 10px;
-}
+
 .box{
   width: 100px;
   height: 100px;
@@ -48,4 +46,252 @@ html {
  width: 100%;
  height: auto;
   transition: all 2s ease;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+ /* font-family: 'Playfair Display', serif; */
+  overflow-x: hidden;
+}
+
+/* The tall vertical scroll track */
+.scroll-wrapper {
+  position: relative;
+  width: 100%;
+  height: 300vh; /* 3 sections = 300vh scroll distance */
+}
+
+/* Sticky container stays fixed at top of viewport */
+.sticky-container {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  will-change: transform;
+}
+
+/* The moving horizontal track */
+.horizontal-track {
+  display: flex;
+  width: 300vw; /* 3 sections × 100vw */
+  height: 100vh;
+  will-change: transform;
+}
+
+/* Each full-viewport section */
+.section {
+  width: 100vw;
+  height: max-content;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+
+
+/* ============================================
+   REVEAL ANIMATIONS (Intersection Observer)
+=========================================== */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: all 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.reveal-left.active {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: all 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.reveal-right.active {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.15s; }
+.reveal-delay-2 { transition-delay: 0.3s; }
+.reveal-delay-3 { transition-delay: 0.45s; }
+.reveal-delay-4 { transition-delay: 0.6s; }
+.reveal-delay-5 { transition-delay: 0.75s; }
+
+/* ============================================
+   GLASSMORPHISM CARDS (Earthy Style)
+=========================================== */
+.glass-card {
+  background: rgba(245, 240, 235, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(196, 168, 130, 0.2);
+  border-radius: 20px;
+  box-shadow: 
+    0 4px 24px rgba(61, 50, 40, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.glass-card-dark {
+  background: rgba(61, 50, 40, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(196, 168, 130, 0.15);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================
+   BUTTON STYLES
+=========================================== */
+.btn-primary {
+  background: linear-gradient(135deg, #C4A882, #B8916A);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 32px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(196, 168, 130, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(196, 168, 130, 0.5);
+}
+
+.btn-primary:hover::after {
+  left: 100%;
+}
+
+.btn-outline {
+  background: transparent;
+  color: #3D3228;
+  border: 1.5px solid rgba(196, 168, 130, 0.5);
+  border-radius: 14px;
+  padding: 14px 32px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-outline:hover {
+  background: rgba(196, 168, 130, 0.1);
+  border-color: #C4A882;
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   FEATURE CARD HOVER
+=========================================== */
+.feature-card {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 50px rgba(61, 50, 40, 0.12);
+  border-color: rgba(196, 168, 130, 0.4);
+}
+
+.feature-card:hover .feature-icon {
+  transform: scale(1.1) rotate(3deg);
+}
+
+.feature-icon {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   FLOATING DECORATIVE ELEMENTS
+=========================================== */
+.floating-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-20px) scale(1.05); }
+}
+
+.float-anim {
+  animation: float 8s ease-in-out infinite;
+}
+
+/* ============================================
+   SCROLL INDICATOR
+=========================================== */
+.scroll-hint {
+  animation: bounce 2.5s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-8px); }
+  60% { transform: translateY(-4px); }
+}
+
+/* ============================================
+   IMAGE MASKING (Organic shapes)
+=========================================== */
+.img-organic {
+  border-radius: 24px 80px 24px 80px;
+  overflow: hidden;
+}
+
+.img-organic-2 {
+  border-radius: 80px 24px 80px 24px;
+  overflow: hidden;
+}
+
+/* ============================================
+   RESPONSIVE
+=========================================== */
+@media (max-width: 768px) {
+  .section { padding: 2rem; }
+  .glass-card { margin: 0 0.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .reveal-left, .reveal-right {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .floating-orb, .float-anim { animation: none; }
 }

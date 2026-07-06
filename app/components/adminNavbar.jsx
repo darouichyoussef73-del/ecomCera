@@ -28,20 +28,41 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 const adminNavbar = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
      const [activeTab, setActiveTab] = useState('');
      const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard,link:'/admin/dashboard'  },
     { id: 'orders', label: 'Orders', icon: ShoppingCart, link:'/admin/orders'  },
     { id: 'clients', label: 'Clients', icon: Users ,link:'/admin/clients' },
     { id: 'Product Manager', label: 'Products Manager', icon: BarChart3,link:'/admin/productManager'  },
-    { id: 'payement', label: 'Payements', icon: FileText  ,link:'/admin/payement'  },
-    // { id: 'messages', label: 'Messages', icon: Mail,link:'/admin/clients'  },
-    { id: 'profile', label: 'Settings', icon: Settings ,link:'/admin/adminProfile' },
+    // { id: 'payement', label: 'Payements', icon: FileText  ,link:'/admin/payement'  },
+    { id: 'service', label: 'Services', icon: FileText  ,link:'/admin/Booking'  },
+
+    
   ];
 
   return (
     <>
-      <nav className="flex-1 px-4 py-6 space-y-1   overflow-y-auto w-60 bg-white rounded-3xl">
+     <div  className={`
+            fixed lg:static inset-y-0 left-0 z-50 w-64  bg-white border-r border-gray-200
+            transform transition-transform duration-300 ease-in-out
+            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          `}>
+          {/* Mobile Sidebar Overlay */}
+          {sidebarOpen && (
+            <div
+              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+    
+          {/* Sidebar */}
+          <aside>
+            <div className="h-full flex flex-col">
+        
+    
+              {/* Navigation */}
+            <nav className="flex-1 px-4 py-6 space-y-1   overflow-y-auto w-60">
             {navItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -66,6 +87,12 @@ const adminNavbar = () => {
               );
             })}
           </nav>
+    
+             
+            </div>
+          </aside>
+    </div>
+      
     </>
   )
 }
