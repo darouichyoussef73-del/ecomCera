@@ -91,7 +91,7 @@ const page = () => {
 <AboutSection/>
 
 {/* SERVICES / EVENTS SECTION */}
-<section id="events" className="py-24 md:py-32 px-6 bg-sand">
+{/* <section id="events" className="py-24 md:py-32 px-6 bg-sand">
   <div className="mx-auto max-w-7xl">
 
     <div className="flex items-center gap-4 text-black text-sm uppercase tracking-[0.25em] mb-6">
@@ -157,7 +157,7 @@ const page = () => {
       </div>
     </div>
   </div>
-</section>
+</section> */}
 
 {/* FAQ SECTION */}
 <section id="faq" className="py-24 md:py-32 px-6">

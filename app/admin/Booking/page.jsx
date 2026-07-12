@@ -43,6 +43,9 @@ import {
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
+const STORAGE_BASE_URL =
+  process.env.NEXT_PUBLIC_STORAGE_URL || "http://localhost:8000/storage";
+
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
   .font-serif { font-family: 'Playfair Display', serif; }
@@ -181,6 +184,11 @@ const mapBookingToSubmission = (booking) => ({
   dimensions: booking.dimensions || booking.dimensions || "",
   glazePreference: booking.glaze_preference || booking.glazePreference || "",
   notes: booking.notes || "",
+  vision_image: booking.vision_image
+    ? `${STORAGE_BASE_URL}/${booking.vision_image}`
+    : booking.visionImage
+      ? `${STORAGE_BASE_URL}/${booking.visionImage}`
+      : "",
   user_id: booking.user_id || booking.client_id || null,
 });
 
@@ -634,7 +642,7 @@ const page = () => {
   };
 
   // Not logged in state
-  if (!user && !loading) {
+  if (!user && loading) {
     return (
       <div className="min-h-screen cera-bg flex items-center justify-center p-4">
         <div className="cera-card rounded-3xl p-8 text-center max-w-md">
@@ -974,6 +982,42 @@ const page = () => {
                     </p>
                   </div>
                 </div>
+                {sub.vision_image && (
+                  <div>
+                    <h3 className="text-sm font-semibold cera-text-secondary uppercase tracking-wider mb-3">
+                      Reference Image
+                    </h3>
+                    <div className="p-5 rounded-2xl bg-[#FAF8F5] border cera-border">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Eye className="w-4 h-4 text-[#B8916A]" />
+                        <span className="text-sm font-semibold cera-text-primary">
+                          Vision / Reference Image
+                        </span>
+                      </div>
+                      <div className="relative rounded-xl overflow-hidden border cera-border bg-white">
+                        <img
+                          src={sub.vision_image}
+                          alt="Vision reference"
+                          className="w-full max-h-80 object-contain"
+                          onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                        />
+                        <div className="hidden items-center justify-center py-12 text-sm cera-text-secondary">
+                          <AlertCircle className="w-5 h-5 mr-2 text-[#C4A882]" />
+                          Image could not be loaded
+                        </div>
+                      </div>
+                      <a
+                        href={sub.vision_image}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 mt-3 text-sm text-[#B8916A] hover:text-[#3D3228] transition-colors"
+                      >
+                        <Eye className="w-4 h-4" />
+                        Open image in new tab
+                      </a>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -1053,6 +1097,34 @@ const page = () => {
                         {sub.dimensions || "—"}
                       </p>
                     </div>
+                    {sub.vision_image && (
+                      <div className="p-4 rounded-2xl bg-[#FAF8F5] border cera-border">
+                        <p className="text-xs cera-text-secondary uppercase tracking-wider mb-3">
+                          Vision / Reference Image
+                        </p>
+                        <div className="relative rounded-xl overflow-hidden border cera-border bg-white">
+                          <img
+                            src={sub.vision_image}
+                            alt="Vision reference"
+                            className="w-full max-h-80 object-contain"
+                            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                          />
+                          <div className="hidden items-center justify-center py-12 text-sm cera-text-secondary">
+                            <AlertCircle className="w-5 h-5 mr-2 text-[#C4A882]" />
+                            Image could not be loaded
+                          </div>
+                        </div>
+                        <a
+                          href={sub.vision_image}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 mt-3 text-sm text-[#B8916A] hover:text-[#3D3228] transition-colors"
+                        >
+                          <Eye className="w-4 h-4" />
+                          Open image in new tab
+                        </a>
+                      </div>
+                    )}
                     <div className="p-4 rounded-2xl bg-[#FAF8F5] border cera-border">
                       <p className="text-xs cera-text-secondary uppercase tracking-wider mb-1">
                         Project Description
@@ -1081,6 +1153,34 @@ const page = () => {
                         {sub.participants || "—"}
                       </p>
                     </div>
+                    {sub.vision_image && (
+                      <div className="p-4 rounded-2xl bg-[#FAF8F5] border cera-border col-span-2">
+                        <p className="text-xs cera-text-secondary uppercase tracking-wider mb-3">
+                          Vision / Reference Image
+                        </p>
+                        <div className="relative rounded-xl overflow-hidden border cera-border bg-white">
+                          <img
+                            src={sub.vision_image}
+                            alt="Vision reference"
+                            className="w-full max-h-80 object-contain"
+                            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                          />
+                          <div className="hidden items-center justify-center py-12 text-sm cera-text-secondary">
+                            <AlertCircle className="w-5 h-5 mr-2 text-[#C4A882]" />
+                            Image could not be loaded
+                          </div>
+                        </div>
+                        <a
+                          href={sub.vision_image}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 mt-3 text-sm text-[#B8916A] hover:text-[#3D3228] transition-colors"
+                        >
+                          <Eye className="w-4 h-4" />
+                          Open image in new tab
+                        </a>
+                      </div>
+                    )}
                     <div className="p-4 rounded-2xl bg-[#FAF8F5] border cera-border col-span-2">
                       <p className="text-xs cera-text-secondary uppercase tracking-wider mb-1">
                         Piece Details
@@ -1092,30 +1192,60 @@ const page = () => {
                   </div>
                 )}
                 {sub.serviceType === "private" && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="p-4 rounded-2xl bg-[#FAF8F5] border cera-border">
-                      <p className="text-xs cera-text-secondary uppercase tracking-wider mb-1">
-                        Event Type
-                      </p>
-                      <p className="text-sm font-medium cera-text-primary">
-                        {sub.pieceType || "—"}
-                      </p>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="p-4 rounded-2xl bg-[#FAF8F5] border cera-border">
+                        <p className="text-xs cera-text-secondary uppercase tracking-wider mb-1">
+                          Event Type
+                        </p>
+                        <p className="text-sm font-medium cera-text-primary">
+                          {sub.pieceType || "—"}
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-2xl bg-[#FAF8F5] border cera-border">
+                        <p className="text-xs cera-text-secondary uppercase tracking-wider mb-1">
+                          Group Size
+                        </p>
+                        <p className="text-sm font-medium cera-text-primary">
+                          {sub.participants === "1"
+                            ? "1–4 People"
+                            : sub.participants === "2"
+                              ? "5–8 People"
+                              : sub.participants === "3"
+                                ? "9–12 People"
+                                : sub.participants || "—"}
+                        </p>
+                      </div>
                     </div>
+                    {sub.vision_image && (
+                      <div className="p-4 rounded-2xl bg-[#FAF8F5] border cera-border">
+                        <p className="text-xs cera-text-secondary uppercase tracking-wider mb-3">
+                          Vision / Reference Image
+                        </p>
+                        <div className="relative rounded-xl overflow-hidden border cera-border bg-white">
+                          <img
+                            src={sub.vision_image}
+                            alt="Vision reference"
+                            className="w-full max-h-80 object-contain"
+                            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                          />
+                          <div className="hidden items-center justify-center py-12 text-sm cera-text-secondary">
+                            <AlertCircle className="w-5 h-5 mr-2 text-[#C4A882]" />
+                            Image could not be loaded
+                          </div>
+                        </div>
+                        <a
+                          href={sub.vision_image}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 mt-3 text-sm text-[#B8916A] hover:text-[#3D3228] transition-colors"
+                        >
+                          <Eye className="w-4 h-4" />
+                          Open image in new tab
+                        </a>
+                      </div>
+                    )}
                     <div className="p-4 rounded-2xl bg-[#FAF8F5] border cera-border">
-                      <p className="text-xs cera-text-secondary uppercase tracking-wider mb-1">
-                        Group Size
-                      </p>
-                      <p className="text-sm font-medium cera-text-primary">
-                        {sub.participants === "1"
-                          ? "1–4 People"
-                          : sub.participants === "2"
-                            ? "5–8 People"
-                            : sub.participants === "3"
-                              ? "9–12 People"
-                              : sub.participants || "—"}
-                      </p>
-                    </div>
-                    <div className="p-4 rounded-2xl bg-[#FAF8F5] border cera-border col-span-2">
                       <p className="text-xs cera-text-secondary uppercase tracking-wider mb-1">
                         Event Details
                       </p>
@@ -1261,13 +1391,9 @@ const page = () => {
               </div>
               <div>
                 <h1 className="text-xl font-serif font-semibold cera-text-primary">
-                  My Bookings
+                  Bookings
                 </h1>
-                <p className="text-xs cera-text-secondary">
-                  {user
-                    ? `Welcome back, ${user.name || user.email || "User"}`
-                    : "Manage your service bookings"}
-                </p>
+                
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -1296,9 +1422,7 @@ const page = () => {
                   </button>
                 </div>
               )}
-              <button className="cera-btn-primary px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2">
-                <Plus className="w-4 h-4" /> New Booking
-              </button>
+           
             </div>
           </div>
         </div>

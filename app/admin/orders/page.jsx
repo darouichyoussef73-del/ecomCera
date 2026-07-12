@@ -28,6 +28,7 @@ import {
   AlertCircle,
   Printer,
   Download,
+  ImageIcon,
 } from "lucide-react";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
@@ -49,6 +50,9 @@ const Page = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [updating, setUpdating] = useState(false);
+
+  // Image preview state
+  const [previewImage, setPreviewImage] = useState(null);
 
   // ===== FETCH ORDERS FROM REST API =====
   const fetchOrders = async () => {
@@ -104,6 +108,9 @@ const Page = () => {
       products: order.items
         ? order.items.map((item) => item.product_name || item.name || "Product")
         : [order.product || "Product"],
+      productImages: order.items
+        ? order.items.map((item) => item.product_image || item.image || item.thumbnail || item.photo || null)
+        : [order.product_image || order.image || order.thumbnail || null],
       date: order.created_at
         ? new Date(order.created_at).toLocaleDateString("en-US", {
             month: "short",
@@ -209,7 +216,7 @@ const Page = () => {
     setUpdating(true);
     try {
       const response = await fetch(`${API_BASE_URL}/admin/orders/${orderId}`, {
-        method: "PUT", // or PATCH if your route uses patch
+        method: "PUT",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -217,7 +224,6 @@ const Page = () => {
         body: JSON.stringify({ status: newStatus }),
       });
 
-      // Log the raw response for debugging
       const responseText = await response.text();
       console.log("Update response:", response.status, responseText);
 
@@ -318,12 +324,60 @@ const Page = () => {
   const timelineSteps = [
     { label: "Processing", completed: false },
     { label: "Shipped", completed: false },
-    { label: "Out for Delivery", completed: false },
+    // { label: "Out for Delivery", completed: false },
     { label: "Delivered", completed: false },
   ];
 
+  // Helper to get item image
+  const getItemImage = (order, index) => {
+    if (!order) return null;
+    if (Array.isArray(order.productImages) && order.productImages[index]) {
+      return order.productImages[index];
+    }
+    if (order.items && order.items[index] && (order.items[index].product_image || order.items[index].image)) {
+      return order.items[index].product_image || order.items[index].image;
+    }
+    return null;
+  };
+
+  // Helper to get all images for an order
+  const getAllImages = (order) => {
+    if (!order) return [];
+    const images = [];
+    if (Array.isArray(order.productImages)) {
+      images.push(...order.productImages.filter(Boolean));
+    }
+    if (order.items) {
+      order.items.forEach((item) => {
+        if (item.product_image || item.image || item.thumbnail) {
+          images.push(item.product_image || item.image || item.thumbnail);
+        }
+      });
+    }
+    return [...new Set(images)]; // Remove duplicates
+  };
+
   return (
     <>
+      {/* Image Preview Overlay */}
+      {previewImage && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+             onClick={() => setPreviewImage(null)}>
+          <button 
+            onClick={() => setPreviewImage(null)}
+            className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <img 
+            src={previewImage} 
+            alt="Product preview" 
+            className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
+
       <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -465,64 +519,86 @@ const Page = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {uiOrders.map((order) => (
-                    <tr key={order.dbId} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="px-4 sm:px-6 py-4">
-                        <span className="text-sm font-semibold text-slate-900 font-mono">{order.id}</span>
-                      </td>
-                      <td className="px-4 sm:px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-slate-900 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                            {order.client.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?"}
+                  {uiOrders.map((order) => {
+                    const firstImage = Array.isArray(order.productImages) && order.productImages[0]
+                      ? order.productImages[0]
+                      : (order.items && order.items[0] && (order.items[0].product_image || order.items[0].image));
+                    return (
+                      <tr key={order.dbId} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="px-4 sm:px-6 py-4">
+                          <span className="text-sm font-semibold text-slate-900 font-mono">{order.id}</span>
+                        </td>
+                        <td className="px-4 sm:px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full bg-slate-900 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                              {order.client.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?"}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium text-gray-900 truncate">{order.client.name}</p>
+                              <p className="text-xs text-gray-500 truncate lg:hidden">{order.client.email}</p>
+                              {order.user_id && <p className="text-xs text-indigo-500">User #{order.user_id}</p>}
+                            </div>
                           </div>
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">{order.client.name}</p>
-                            <p className="text-xs text-gray-500 truncate lg:hidden">{order.client.email}</p>
-                            {order.user_id && <p className="text-xs text-indigo-500">User #{order.user_id}</p>}
+                        </td>
+                        <td className="px-4 sm:px-6 py-4 hidden lg:table-cell">
+                          <div className="flex items-center gap-2">
+                            {firstImage && (
+                              <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
+                                <img 
+                                  src={firstImage} 
+                                  alt=""
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => e.target.parentElement.style.display = 'none'}
+                                />
+                              </div>
+                            )}
+                            <div className="flex flex-wrap gap-1">
+                              {order.products.slice(0, 2).map((product, i) => (
+                                <span key={i} className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
+                                  {product}
+                                </span>
+                              ))}
+                              {order.products.length > 2 && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-500">
+                                  +{order.products.length - 2}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-4 sm:px-6 py-4 hidden lg:table-cell">
-                        <div className="flex flex-wrap gap-1">
-                          {order.products.map((product, i) => (
-                            <span key={i} className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
-                              {product}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="px-4 sm:px-6 py-4">
-                        <div className="flex items-center gap-1.5 text-sm text-gray-600">
-                          <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                          {order.date}
-                        </div>
-                      </td>
-                      <td className="px-4 sm:px-6 py-4">
-                        <span className="text-sm font-semibold text-gray-900">${order.amount.toFixed(2)}</span>
-                      </td>
-                      <td className="px-4 sm:px-6 py-4">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${getPaymentStyles(order.payment)}`}>
-                          <CreditCard className="w-3 h-3" />
-                          {order.payment}
-                        </span>
-                      </td>
-                      <td className="px-4 sm:px-6 py-4">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusStyles(order.status)}`}>
-                          {getStatusIcon(order.status)}
-                          {order.status}
-                        </span>
-                      </td>
-                      <td className="px-4 sm:px-6 py-4 text-right">
-                        <button
-                          onClick={() => { setSelectedOrder(order); setSelectedStatus(order.status); }}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-900 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="px-4 sm:px-6 py-4">
+                          <div className="flex items-center gap-1.5 text-sm text-gray-600">
+                            <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                            {order.date}
+                          </div>
+                        </td>
+                        <td className="px-4 sm:px-6 py-4">
+                          <span className="text-sm font-semibold text-gray-900">${order.amount.toFixed(2)}</span>
+                        </td>
+                        <td className="px-4 sm:px-6 py-4">
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${getPaymentStyles(order.payment)}`}>
+                            <CreditCard className="w-3 h-3" />
+                            {order.payment}
+                          </span>
+                        </td>
+                        <td className="px-4 sm:px-6 py-4">
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusStyles(order.status)}`}>
+                            {getStatusIcon(order.status)}
+                            {order.status}
+                          </span>
+                        </td>
+                        <td className="px-4 sm:px-6 py-4 text-right">
+                          <button
+                            onClick={() => { setSelectedOrder(order); setSelectedStatus(order.status); setPreviewImage(null); }}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-900 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            View
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             )}
@@ -584,8 +660,8 @@ const Page = () => {
 
         {/* Order Detail Modal */}
         {selectedOrder && (
-          <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-16 sm:pt-24 overflow-y-auto">
-            <div className="absolute inset-0 bg-black/40" onClick={() => !updating && setSelectedOrder(null)} />
+          <div className="fixed inset-0 z-50  flex items-start justify-center p-4 pt-16 sm:pt-24 overflow-y-auto  ">
+            <div className="fixed  inset-0 bg-black/40" onClick={() => !updating && setSelectedOrder(null)} />
             <div className="relative bg-white rounded-2xl shadow-xl max-w-2xl w-full mb-8">
               {/* Header */}
               <div className="flex items-center justify-between p-6 border-b border-gray-100">
@@ -605,6 +681,40 @@ const Page = () => {
 
               {/* Body */}
               <div className="p-6 space-y-6">
+                {/* Product Images Gallery */}
+                {(() => {
+                  const images = getAllImages(selectedOrder);
+                  if (images.length === 0) return null;
+                  return (
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Product Images</h4>
+                      <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
+                        {images.map((img, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setPreviewImage(img)}
+                            className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 hover:border-slate-900 hover:shadow-md transition-all group"
+                          >
+                            <img 
+                              src={img} 
+                              alt={`Product ${idx + 1}`}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                              }}
+                            />
+                            <div className="absolute inset-0 hidden items-center justify-center bg-gray-50">
+                              <ImageIcon className="w-6 h-6 text-gray-300" />
+                            </div>
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 {/* Status Timeline */}
                 <div>
                   <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Order Status</h4>
@@ -654,37 +764,90 @@ const Page = () => {
                 {/* Order Items */}
                 <div>
                   <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3">Order Items</h4>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {selectedOrder.items && selectedOrder.items.length > 0 ? (
-                      selectedOrder.items.map((item, i) => (
-                        <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
-                              <Box className="w-4 h-4 text-gray-400" />
+                      selectedOrder.items.map((item, i) => {
+                        const itemImage = getItemImage(selectedOrder, i);
+                        return (
+                          <div key={i} className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl">
+                            {/* Product Image */}
+                            <button
+                              onClick={() => itemImage && setPreviewImage(itemImage)}
+                              className={`w-16 h-16 rounded-xl flex-shrink-0 overflow-hidden border border-gray-200 ${
+                                itemImage ? 'cursor-pointer hover:border-slate-900 hover:shadow-md' : ''
+                              } transition-all`}
+                            >
+                              {itemImage ? (
+                                <img 
+                                  src={itemImage} 
+                                  alt={item.product_name || item.name || "Product"}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.display = 'flex';
+                                  }}
+                                />
+                              ) : null}
+                              <div className={`w-full h-full items-center justify-center bg-gray-100 ${itemImage ? 'hidden' : 'flex'}`}>
+                                <Box className="w-6 h-6 text-gray-400" />
+                              </div>
+                            </button>
+                            
+                            <div className="flex-1 min-w-0">
+                              <span className="text-sm font-medium text-gray-900 block">{item.product_name || item.name || "Product"}</span>
+                              <p className="text-xs text-gray-500 mt-0.5">SKU: {item.product_sku || "-"}</p>
+                              <p className="text-xs text-gray-500 mt-0.5">Qty: {item.quantity || 1} × ${(parseFloat(item.price) || 0).toFixed(2)}</p>
                             </div>
-                            <div>
-                              <span className="text-sm font-medium text-gray-900">{item.product_name || item.name || "Product"}</span>
-                              <p className="text-xs text-gray-500">SKU: {item.product_sku || "-"}</p>
+                            
+                            <div className="text-right">
+                              <span className="text-sm font-semibold text-gray-900">${(parseFloat(item.total) || 0).toFixed(2)}</span>
                             </div>
+                            
+                            {itemImage && (
+                              <button
+                                onClick={() => setPreviewImage(itemImage)}
+                                className="p-2 text-gray-400 hover:text-slate-900 hover:bg-gray-100 rounded-lg transition-colors"
+                                title="View image"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                            )}
                           </div>
-                          <div className="text-right">
-                            <span className="text-sm font-medium text-gray-900">${(parseFloat(item.total) || 0).toFixed(2)}</span>
-                            <p className="text-xs text-gray-500">Qty: {item.quantity || 1} × ${(parseFloat(item.price) || 0).toFixed(2)}</p>
-                          </div>
-                        </div>
-                      ))
+                        );
+                      })
                     ) : (
-                      selectedOrder.products.map((product, i) => (
-                        <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
-                              <Box className="w-4 h-4 text-gray-400" />
+                      selectedOrder.products.map((product, i) => {
+                        const itemImage = getItemImage(selectedOrder, i);
+                        return (
+                          <div key={i} className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl">
+                            <button
+                              onClick={() => itemImage && setPreviewImage(itemImage)}
+                              className={`w-16 h-16 rounded-xl flex-shrink-0 overflow-hidden border border-gray-200 ${
+                                itemImage ? 'cursor-pointer hover:border-slate-900 hover:shadow-md' : ''
+                              } transition-all`}
+                            >
+                              {itemImage ? (
+                                <img 
+                                  src={itemImage} 
+                                  alt={product}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.display = 'flex';
+                                  }}
+                                />
+                              ) : null}
+                              <div className={`w-full h-full items-center justify-center bg-gray-100 ${itemImage ? 'hidden' : 'flex'}`}>
+                                <Box className="w-6 h-6 text-gray-400" />
+                              </div>
+                            </button>
+                            <div className="flex-1 min-w-0">
+                              <span className="text-sm font-medium text-gray-900 block">{product}</span>
+                              <p className="text-xs text-gray-500 mt-0.5">Qty: 1</p>
                             </div>
-                            <span className="text-sm font-medium text-gray-900">{product}</span>
                           </div>
-                          <span className="text-sm text-gray-500">Qty: 1</span>
-                        </div>
-                      ))
+                        );
+                      })
                     )}
                   </div>
                 </div>

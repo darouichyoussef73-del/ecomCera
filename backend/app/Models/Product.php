@@ -18,7 +18,6 @@ class Product extends Model
         'category',
         'stock',
         'status',
-        // store only the relative image path (e.g. products/abcd.jpg)
         'image',
     ];
     

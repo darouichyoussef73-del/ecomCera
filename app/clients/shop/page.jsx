@@ -8,6 +8,7 @@ import {
   MapPin, User, Mail, Phone, CreditCard
 } from 'lucide-react';
 import NavbarClients from '@/app/components/navbarClients';
+import Link from 'next/link';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
@@ -31,7 +32,6 @@ const Page = () => {
     }
 
     // Load logged-in user data from localStorage
-    // Adjust the key 'user' if your app uses something else like 'auth_user', 'currentUser', etc.
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
       try {
@@ -56,7 +56,7 @@ const Page = () => {
 
   // Checkout modal state
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [checkoutStep, setCheckoutStep] = useState(1); // 1: shipping, 2: payment, 3: confirm
+  const [checkoutStep, setCheckoutStep] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [isConfirming, setIsConfirming] = useState(false);
   const [orderConfirmed, setOrderConfirmed] = useState(false);
@@ -68,7 +68,7 @@ const Page = () => {
   const [useNewCard, setUseNewCard] = useState(true);
   const [selectedSavedCardId, setSelectedSavedCardId] = useState(null);
 
-  // Shipping form — PRE-FILLED with user data from localStorage
+  // Shipping form
   const [shippingForm, setShippingForm] = useState({
     customer_name: '',
     customer_email: '',
@@ -142,7 +142,7 @@ const Page = () => {
   const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const shipping = appliedCoupon?.type === 'shipping' ? 0 : subtotal > 100 ? 0 : 12.99;
   const discount = appliedCoupon?.type === 'percentage' ? subtotal * appliedCoupon.discount : 0;
-  const tax = subtotal * 0.08; // 8% tax example
+  const tax = subtotal * 0.08;
   const total = subtotal + shipping + tax - discount;
 
   const formatCurrency = (amount) => {
@@ -174,7 +174,6 @@ const Page = () => {
     setCardCvc('');
     setSaveCard(false);
     setPaypalEmail('');
-    // Don't clear shipping form — keep user data pre-filled
   };
 
   const validateShipping = () => {
@@ -184,7 +183,7 @@ const Page = () => {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(shippingForm.customer_email)) errors.customer_email = 'Invalid email';
     if (!shippingForm.shipping_address.trim()) errors.shipping_address = 'Address is required';
     if (!shippingForm.city.trim()) errors.city = 'City is required';
-    
+
     setShippingErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -224,10 +223,9 @@ const Page = () => {
     setOrderError('');
 
     const orderData = {
-      // Attach user_id so the backend knows who placed the order
       user_id: currentUser?.id || currentUser?.user_id || null,
-      client_id: currentUser?.id || currentUser?.user_id || null, // fallback if your API uses client_id
-      
+      client_id: currentUser?.id || currentUser?.user_id || null,
+
       customer_name: shippingForm.customer_name,
       customer_email: shippingForm.customer_email,
       customer_phone: shippingForm.customer_phone,
@@ -270,15 +268,12 @@ const Page = () => {
         throw new Error(data.error || data.message || 'Failed to create order');
       }
 
-      // Success!
       setConfirmedOrder(data.order);
       setOrderConfirmed(true);
-      
-      // Clear cart
+
       setCartItems([]);
       localStorage.removeItem('cart');
 
-      // Save card if requested
       if (paymentMethod === 'card' && useNewCard && saveCard) {
         const newCard = {
           id: String(Date.now()),
@@ -305,86 +300,97 @@ const Page = () => {
     }
   };
 
-  // if (loading) {
-  //   return (
-  //     <div className="min-h-screen bg-[#F5F0EB] flex items-center justify-center">
-  //       <div className="text-gray-500">Loading cart...</div>
-  //     </div>
-  //   );
-  // }
+  // ===== NOT LOGGED IN STATE =====
+  if (!currentUser && !loading) {
+    return (
+      <>
+        <NavbarClients />
+        <div className="min-h-screen bg-[#F5F0EB] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm text-center max-w-md">
+            <div className="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <User className="w-8 h-8 text-indigo-500" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Not Logged In</h3>
+            <p className="text-sm text-gray-500 mb-6">Please log in to view your cart and checkout.</p>
+            <Link 
+              href="/pages/acountCreation" 
+              className="inline-block rounded-full bg-black text-white font-bold text-xs sm:text-sm px-6 sm:px-8 py-2.5 sm:py-3 hover:bg-gray-800 transition"
+            >
+              Log In
+            </Link>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <> 
     <NavbarClients />
      <section className="hero relative min-h-screen overflow-hidden " id=''>
-   
+
       {/* Background Image */}
       <div className="absolute inset-0">
-     
+
              <video
-                src="/videos/hero.mp4"
-                poster="/images/hero1.jpeg"
+                src="/videos/shopping.mp4"
+                poster="/images/shopping.jpeg"
                 autoPlay
                 muted
                 loop
                 playsInline
                   className="w-full h-full object-cover rounded-2xl"
-                // className="w-full h-48 md:h-64 object-cover rounded-3xl"
               >
                 Your browser does not support the video tag.
               </video>
         </div>
-    
+
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-6 lg:px-12 min-h-screen flex items-end pb-16">
         <div className="grid lg:grid-cols-2 gap-12 w-full items-end">
-          {/* Left Content */}
-          <div className="max-w-2xl mb-10">
-            <h1 className="text-5xl md:text-7xl font-bold text-black leading-tight tracking-tight ">
-              A calmer way to care for your smile.
-            </h1>
+     
+{/* Left Content */}
+<div className="max-w-2xl mb-10">
+  <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight tracking-tight">
+    Complete Your Order
+  </h1>
 
-            <p className="mt-6 text-lg md:text-xl text-black/80 max-w-xl">
-              Gentle dentistry designed to remove fear, build trust, and
-              deliver confident, lasting results.
-            </p>
+  <p className="mt-6 text-lg md:text-xl text-white/80 max-w-xl">
+    You're just one step away from bringing handcrafted pottery into your home.
+    Review your items, enter your shipping details, and place your order securely.
+  </p>
+</div>
 
-          
-          </div>
+{/* Right Content */}
+<div className="flex flex-col lg:items-end gap-6">
+  {/* Info Card */}
+  <div className="max-w-sm rounded-3xl border border-white/20 bg-white/10 backdrop-blur-xl p-6">
+    <p className="text-white text-lg">
+       Every ceramic piece is carefully handcrafted, securely packaged, and
+      delivered with care.
+    </p>
+  </div>
 
-          {/* Right Content */}
-          <div className="flex flex-col lg:items-end gap-6">
-            {/* Testimonial Card */}
-            <div className="max-w-sm rounded-3xl border border-white/20 bg-white/10 backdrop-blur-xl p-6">
-             
-
-              <p className="text-black text-lg">
-                “It felt more like a wellness visit than a dental appointment.”
-              </p>
-
-             
-             
-            </div>
-
-            {/* Video Card */}
-            <div className="max-w-sm rounded-3xl overflow-hidden">
-              
-            </div>
-          </div>
+  {/* Featured Card */}
+  <div className="max-w-sm rounded-3xl overflow-hidden">
+    {/* Optional order summary image or pottery photo */}
+  </div>
+</div>
+        
         </div>
       </div>
     </section>
     <div className="min-h-screen bg-[#F5F0EB] p-4 pt-20">
-      
-     
+
+
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Shopping Cart</h1>
             <p className="text-gray-500 mt-1 text-sm">{itemCount} {itemCount === 1 ? 'item' : 'items'} in your cart</p>
-           
+
           </div>
           <a href="/clients/products" className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
             <ArrowLeft className="w-4 h-4" />
@@ -571,10 +577,10 @@ const Page = () => {
             </div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Your cart is empty</h2>
             <p className="text-sm text-gray-500 mb-8">Looks like you haven't added anything to your cart yet.</p>
-            <a href="/products" className="inline-flex items-center gap-2 px-8 py-3.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-all shadow-lg">
+            <Link href="/clients/products" className="inline-flex items-center gap-2 px-8 py-3.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-all shadow-lg">
               <ArrowLeft className="w-4 h-4" />
               Start Shopping
-            </a>
+            </Link>
           </div>
         )}
       </div>
@@ -583,7 +589,7 @@ const Page = () => {
       {isCheckoutOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40" onClick={!isConfirming ? closeCheckout : undefined} />
-          
+
           <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto z-10">
             {/* Header */}
             <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl">
@@ -623,7 +629,7 @@ const Page = () => {
                 <>
                   {/* STEP 1: SHIPPING */}
                   {checkoutStep === 1 && (
-                    <div className="space-y-4 text-black">
+                    <div className="space-y-4">
                       {/* Show logged-in user badge */}
                       {currentUser && (
                         <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-xl flex items-center gap-2">
@@ -777,7 +783,7 @@ const Page = () => {
                                     <CreditCard className="w-4 h-4 text-gray-500" />
                                     <div>
                                       <div className="text-sm font-medium text-gray-900">**** **** **** {card.last4}</div>
-                                      <div className="text-xs text-gray-500">{card.name} • Expires {card.exp}</div>
+                                      <div className="text-xs text-gray-500">{card.name} - Expires {card.exp}</div>
                                     </div>
                                   </div>
                                   <input type="radio" name="savedCard" checked={selectedSavedCardId === card.id && !useNewCard}
@@ -920,8 +926,8 @@ const Page = () => {
                     <CheckCircle2 className="w-8 h-8 text-emerald-600" />
                   </div>
                   <h4 className="text-xl font-bold text-gray-900">Thank You!</h4>
-                  <p className="text-sm text-gray-500 mt-2">Your order has been placed successfully.</p>
-                  
+                  <p className="text-sm text-gray-500 mt-2">Your order has been  placed successfully.</p>
+
                   {confirmedOrder && (
                     <div className="mt-4 p-4 bg-gray-50 rounded-xl text-left">
                       <div className="flex justify-between text-sm mb-1">
@@ -944,14 +950,14 @@ const Page = () => {
                   )}
 
                   <div className="flex gap-3 mt-6">
-                    <a href="/products" onClick={closeCheckout}
+                    <Link href="/clients/products" onClick={closeCheckout}
                       className="flex-1 py-3 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-all">
                       Continue Shopping
-                    </a>
-                    <a href="/orders"
+                    </Link>
+                    <Link href="/clients/orders"
                       className="flex-1 py-3 border border-gray-200 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-all">
                       View Orders
-                    </a>
+                    </Link>
                   </div>
                 </div>
               )}

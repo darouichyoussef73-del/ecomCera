@@ -1,3 +1,4 @@
+
 // "use client";
 // import React from "react";
 // import { useState } from "react";
@@ -27,11 +28,13 @@
 //   ArrowUpDown,
 //   Download,
 //   Image as ImageIcon,
+//   Save,
+//   Loader2,
 // } from "lucide-react";
 // import Link from "next/link";
 
 // const page = () => {
-// const [searchQuery, setSearchQuery] = useState('');
+//   const [searchQuery, setSearchQuery] = useState('');
 //   const [categoryFilter, setCategoryFilter] = useState('all');
 //   const [statusFilter, setStatusFilter] = useState('all');
 //   const [sortBy, setSortBy] = useState('name');
@@ -44,6 +47,14 @@
 //   const [products, setProducts] = useState([]);
 //   const [loadingProducts, setLoadingProducts] = useState(false);
 //   const [fetchError, setFetchError] = useState(null);
+
+//   // Product Detail Modal State
+//   const [showDetailModal, setShowDetailModal] = useState(false);
+//   const [selectedProduct, setSelectedProduct] = useState(null);
+//   const [isEditing, setIsEditing] = useState(false);
+//   const [editForm, setEditForm] = useState({});
+//   const [savingProduct, setSavingProduct] = useState(false);
+//   const [saveError, setSaveError] = useState(null);
 
 //   const fetchProducts = async () => {
 //     setLoadingProducts(true);
@@ -82,7 +93,6 @@
 //     if (statusFilterLower === 'all') {
 //       matchesStatus = true;
 //     } else if (statusFilterLower === 'active') {
-//       // Active should mean status is active AND there is stock available
 //       matchesStatus = status === 'active' && stock > 0;
 //     } else if (statusFilterLower === 'out of stock') {
 //       matchesStatus = stock === 0 || status === 'out of stock';
@@ -124,7 +134,6 @@
 //   };
 
 //   const confirmDelete = () => {
-//     // call API to delete, then update local state
 //     const doDelete = async () => {
 //       if (!productToDelete) return;
 //       try {
@@ -140,6 +149,56 @@
 //       }
 //     };
 //     doDelete();
+//   };
+
+//   // Open product detail modal
+//   const openProductDetail = (product, editMode = false) => {
+//     setSelectedProduct(product);
+//     setEditForm({ ...product });
+//     setIsEditing(editMode);
+//     setSaveError(null);
+//     setShowDetailModal(true);
+//   };
+
+//   // Close product detail modal
+//   const closeProductDetail = () => {
+//     setShowDetailModal(false);
+//     setSelectedProduct(null);
+//     setEditForm({});
+//     setIsEditing(false);
+//     setSaveError(null);
+//   };
+
+//   // Handle form field changes
+//   const handleEditChange = (field, value) => {
+//     setEditForm(prev => ({ ...prev, [field]: value }));
+//   };
+
+//   // Save product changes
+//   const handleSaveProduct = async () => {
+//     if (!selectedProduct) return;
+//     setSavingProduct(true);
+//     setSaveError(null);
+//     try {
+//       const res = await fetch(`http://127.0.0.1:8000/api/admin/products/${selectedProduct.id}`, {
+//         method: 'PUT',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(editForm),
+//       });
+//       if (res.ok) {
+//         const updated = await res.json();
+//         setProducts(prev => prev.map(p => p.id === selectedProduct.id ? { ...p, ...editForm } : p));
+//         setSelectedProduct({ ...selectedProduct, ...editForm });
+//         setIsEditing(false);
+//       } else {
+//         const errData = await res.json().catch(() => ({}));
+//         setSaveError(errData.message || 'Failed to save product');
+//       }
+//     } catch (err) {
+//       setSaveError('Network error. Please try again.');
+//     } finally {
+//       setSavingProduct(false);
+//     }
 //   };
 
 //   const getStatusStyles = (status) => {
@@ -170,7 +229,6 @@
 //     return 'text-emerald-600';
 //   };
 
-//   // Normalize data and compute accurate counts/revenue
 //   const totalProducts = products.length;
 //   const activeCount = products.filter(p => (p.status || '').toString().toLowerCase() === 'active').length;
 //   const outOfStockCount = products.filter(p => Number(p.stock || 0) === 0 || (p.status || '').toString().toLowerCase() === 'out of stock').length;
@@ -215,7 +273,6 @@
 
 //       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:pr-8 py-8">
 //         {/* Stats Cards */}
-
 //         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
 //           {stats.map((stat, index) => {
 //             const Icon = stat.icon;
@@ -401,13 +458,17 @@
 //                       </td>
 //                       <td className="px-4 sm:px-6 py-4">
 //                         <div className="flex items-center justify-end gap-1">
+//                           {/* View button - opens detail modal in view mode */}
 //                           <button
+//                             onClick={() => openProductDetail(product, false)}
 //                             className="p-2 rounded-lg text-gray-400 hover:text-slate-900 hover:bg-gray-100 transition-all"
 //                             title="View"
 //                           >
 //                             <Eye className="w-4 h-4" />
 //                           </button>
+//                           {/* Edit button - opens detail modal in edit mode */}
 //                           <button
+//                             onClick={() => openProductDetail(product, true)}
 //                             className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
 //                             title="Edit"
 //                           >
@@ -507,6 +568,304 @@
 //         </div>
 //       </div>
 
+//       {/* Product Detail / Edit Modal */}
+//       {showDetailModal && selectedProduct && (
+//         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+//           <div
+//             className="absolute inset-0 bg-black/40"
+//             onClick={closeProductDetail}
+//           />
+//           <div className="relative bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+//             {/* Modal Header */}
+//             <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between z-10 rounded-t-2xl">
+//               <div className="flex items-center gap-3">
+//                 <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center">
+//                   {isEditing ? (
+//                     <Pencil className="w-5 h-5 text-white" />
+//                   ) : (
+//                     <Eye className="w-5 h-5 text-white" />
+//                   )}
+//                 </div>
+//                 <div>
+//                   <h3 className="text-lg font-semibold text-gray-900">
+//                     {isEditing ? "Edit Product" : "Product Details"}
+//                   </h3>
+//                   <p className="text-xs text-gray-500">
+//                     {isEditing ? "Make changes and save" : "View product information"}
+//                   </p>
+//                 </div>
+//               </div>
+//               <div className="flex items-center gap-2">
+//                 {!isEditing ? (
+//                   <button
+//                     onClick={() => setIsEditing(true)}
+//                     className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+//                   >
+//                     <Pencil className="w-4 h-4" />
+//                     Edit
+//                   </button>
+//                 ) : (
+//                   <button
+//                     onClick={handleSaveProduct}
+//                     disabled={savingProduct}
+//                     className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-60"
+//                   >
+//                     {savingProduct ? (
+//                       <Loader2 className="w-4 h-4 animate-spin" />
+//                     ) : (
+//                       <Save className="w-4 h-4" />
+//                     )}
+//                     {savingProduct ? "Saving..." : "Save"}
+//                   </button>
+//                 )}
+//                 <button
+//                   onClick={closeProductDetail}
+//                   className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+//                 >
+//                   <X className="w-5 h-5 text-gray-400" />
+//                 </button>
+//               </div>
+//             </div>
+
+//             {/* Error Banner */}
+//             {saveError && (
+//               <div className="mx-6 mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+//                 <p className="text-sm text-red-600 flex items-center gap-2">
+//                   <AlertTriangle className="w-4 h-4" />
+//                   {saveError}
+//                 </p>
+//               </div>
+//             )}
+
+//             {/* Modal Body */}
+//             <div className="p-6 space-y-6">
+//               {/* Product Image */}
+//               <div className="flex justify-center">
+//                 <div className="w-32 h-32 rounded-2xl bg-gray-100 overflow-hidden border border-gray-200">
+//                   <img
+//                     src={editForm.image || selectedProduct.image}
+//                     alt={editForm.name || selectedProduct.name}
+//                     className="w-full h-full object-cover"
+//                     onError={(e) => {
+//                       e.target.style.display = "none";
+//                       e.target.parentElement.innerHTML =
+//                         '<div class="w-full h-full flex items-center justify-center text-gray-400"><svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>';
+//                     }}
+//                   />
+//                 </div>
+//               </div>
+
+//               {/* Form Fields */}
+//               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+//                 {/* Name */}
+//                 <div className="md:col-span-2">
+//                   <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+//                     Product Name
+//                   </label>
+//                   {isEditing ? (
+//                     <input
+//                       type="text"
+//                       value={editForm.name || ''}
+//                       onChange={(e) => handleEditChange('name', e.target.value)}
+//                       className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"
+//                     />
+//                   ) : (
+//                     <p className="text-sm font-semibold text-gray-900">{selectedProduct.name}</p>
+//                   )}
+//                 </div>
+
+//                 {/* SKU */}
+//                 <div>
+//                   <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+//                     SKU
+//                   </label>
+//                   {isEditing ? (
+//                     <input
+//                       type="text"
+//                       value={editForm.sku || ''}
+//                       onChange={(e) => handleEditChange('sku', e.target.value)}
+//                       className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 font-mono focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"
+//                     />
+//                   ) : (
+//                     <span className="inline-block font-mono text-xs bg-gray-100 px-2 py-1 rounded-md text-gray-700">
+//                       {selectedProduct.sku}
+//                     </span>
+//                   )}
+//                 </div>
+
+//                 {/* Category */}
+//                 <div>
+//                   <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+//                     Category
+//                   </label>
+//                   {isEditing ? (
+//                     <input
+//                       type="text"
+//                       value={editForm.category || ''}
+//                       onChange={(e) => handleEditChange('category', e.target.value)}
+//                       className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"
+//                     />
+//                   ) : (
+//                     <span className="inline-flex items-center gap-1.5 text-sm text-gray-600">
+//                       <Tag className="w-3.5 h-3.5 text-gray-400" />
+//                       {selectedProduct.category}
+//                     </span>
+//                   )}
+//                 </div>
+
+//                 {/* Price */}
+//                 <div>
+//                   <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+//                     Price
+//                   </label>
+//                   {isEditing ? (
+//                     <div className="relative">
+//                       <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+//                       <input
+//                         type="number"
+//                         step="0.01"
+//                         min="0"
+//                         value={editForm.price || ''}
+//                         onChange={(e) => handleEditChange('price', e.target.value)}
+//                         className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"
+//                       />
+//                     </div>
+//                   ) : (
+//                     <p className="text-sm font-semibold text-gray-900">
+//                       ${parseFloat(selectedProduct.price).toFixed(2)}
+//                     </p>
+//                   )}
+//                 </div>
+
+//                 {/* Stock */}
+//                 <div>
+//                   <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+//                     Stock
+//                   </label>
+//                   {isEditing ? (
+//                     <div className="relative">
+//                       <Box className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+//                       <input
+//                         type="number"
+//                         min="0"
+//                         value={editForm.stock || ''}
+//                         onChange={(e) => handleEditChange('stock', e.target.value)}
+//                         className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"
+//                       />
+//                     </div>
+//                   ) : (
+//                     <p className={`text-sm font-semibold ${getStockColor(selectedProduct.stock, selectedProduct.status)}`}>
+//                       {selectedProduct.stock} units
+//                     </p>
+//                   )}
+//                 </div>
+
+//                 {/* Status */}
+//                 <div className="md:col-span-2">
+//                   <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+//                     Status
+//                   </label>
+//                   {isEditing ? (
+//                     <select
+//                       value={editForm.status || ''}
+//                       onChange={(e) => handleEditChange('status', e.target.value)}
+//                       className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 cursor-pointer"
+//                     >
+//                       <option value="Active">Active</option>
+//                       <option value="Inactive">Inactive</option>
+//                       <option value="Low Stock">Low Stock</option>
+//                       <option value="Out of Stock">Out of Stock</option>
+//                     </select>
+//                   ) : (
+//                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusStyles(selectedProduct.status)}`}>
+//                       {getStatusIcon(selectedProduct.status)}
+//                       {selectedProduct.status}
+//                     </span>
+//                   )}
+//                 </div>
+
+//                 {/* Description */}
+//                 <div className="md:col-span-2">
+//                   <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+//                     Description
+//                   </label>
+//                   {isEditing ? (
+//                     <textarea
+//                       rows={3}
+//                       value={editForm.description || ''}
+//                       onChange={(e) => handleEditChange('description', e.target.value)}
+//                       className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 resize-none"
+//                       placeholder="Enter product description..."
+//                     />
+//                   ) : (
+//                     <p className="text-sm text-gray-600 leading-relaxed">
+//                       {selectedProduct.description || "No description available."}
+//                     </p>
+//                   )}
+//                 </div>
+
+//                 {/* Image URL */}
+//                 <div className="md:col-span-2">
+//                   <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+//                     Image URL
+//                   </label>
+//                   {isEditing ? (
+//                     <div className="relative">
+//                       <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+//                       <input
+//                         type="text"
+//                         value={editForm.image || ''}
+//                         onChange={(e) => handleEditChange('image', e.target.value)}
+//                         className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"
+//                         placeholder="https://..."
+//                       />
+//                     </div>
+//                   ) : (
+//                     <p className="text-xs text-gray-400 truncate">{selectedProduct.image || "No image"}</p>
+//                   )}
+//                 </div>
+//               </div>
+
+//               {/* Footer Actions */}
+//               <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+//                 {isEditing && (
+//                   <button
+//                     onClick={() => {
+//                       setEditForm({ ...selectedProduct });
+//                       setIsEditing(false);
+//                       setSaveError(null);
+//                     }}
+//                     className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+//                   >
+//                     Cancel
+//                   </button>
+//                 )}
+//                 <button
+//                   onClick={closeProductDetail}
+//                   className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+//                 >
+//                   Close
+//                 </button>
+//                 {isEditing && (
+//                   <button
+//                     onClick={handleSaveProduct}
+//                     disabled={savingProduct}
+//                     className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-60"
+//                   >
+//                     {savingProduct ? (
+//                       <Loader2 className="w-4 h-4 animate-spin" />
+//                     ) : (
+//                       <Save className="w-4 h-4" />
+//                     )}
+//                     {savingProduct ? "Saving..." : "Save Changes"}
+//                   </button>
+//                 )}
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+
 //       {/* Delete Confirmation Modal */}
 //       {showDeleteModal && productToDelete && (
 //         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -590,13 +949,11 @@ import {
   Box,
   Tag,
   Grid3X3,
-  Layers,
-  MoreHorizontal,
   ArrowUpDown,
-  Download,
-  Image as ImageIcon,
   Save,
   Loader2,
+  Upload,
+  Image as ImageIcon,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -623,13 +980,17 @@ const page = () => {
   const [savingProduct, setSavingProduct] = useState(false);
   const [saveError, setSaveError] = useState(null);
 
+  // Image upload states for edit modal
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [dragActive, setDragActive] = useState(false);
+
   const fetchProducts = async () => {
     setLoadingProducts(true);
     setFetchError(null);
     try {
       const res = await fetch('http://127.0.0.1:8000/api/admin/products?per_page=1000');
       const data = await res.json();
-
       const list = data.data || data;
       setProducts(list);
     } catch (err) {
@@ -649,7 +1010,6 @@ const page = () => {
     const name = (product.name || '').toString().toLowerCase();
     const sku = (product.sku || '').toString().toLowerCase();
     const matchesSearch = name.includes(searchQuery.toLowerCase()) || sku.includes(searchQuery.toLowerCase());
-
     const matchesCategory = categoryFilter === 'all' || (product.category || '') === categoryFilter;
 
     const statusFilterLower = (statusFilter || 'all').toString().toLowerCase();
@@ -724,6 +1084,9 @@ const page = () => {
     setEditForm({ ...product });
     setIsEditing(editMode);
     setSaveError(null);
+    setImageFile(null);
+    setImagePreview(null);
+    setDragActive(false);
     setShowDetailModal(true);
   };
 
@@ -734,6 +1097,9 @@ const page = () => {
     setEditForm({});
     setIsEditing(false);
     setSaveError(null);
+    setImageFile(null);
+    setImagePreview(null);
+    setDragActive(false);
   };
 
   // Handle form field changes
@@ -741,22 +1107,94 @@ const page = () => {
     setEditForm(prev => ({ ...prev, [field]: value }));
   };
 
-  // Save product changes
+  // Handle image file selection (drag or click)
+  const handleImageFile = (file) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setSaveError('Please select a valid image file (PNG, JPG, WEBP)');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setSaveError('Image must be less than 5MB');
+      return;
+    }
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+    setSaveError(null);
+  };
+
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleImageFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFileInputChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      handleImageFile(e.target.files[0]);
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    handleEditChange('image', '');
+  };
+
+  // Save product changes — uses FormData with file upload (same as Add Product)
   const handleSaveProduct = async () => {
     if (!selectedProduct) return;
     setSavingProduct(true);
     setSaveError(null);
+
     try {
+      // Build FormData (same pattern as your Add Product page)
+      const formData = new FormData();
+      formData.append('name', editForm.name || '');
+      formData.append('description', editForm.description || '');
+      formData.append('sku', editForm.sku || '');
+      formData.append('price', String(Number(editForm.price || 0)));
+      formData.append('category', editForm.category || '');
+      formData.append('stock', String(Number(editForm.stock || 0)));
+      formData.append('status', editForm.status || 'active');
+      // Laravel method spoofing for PUT with file upload
+      formData.append('_method', 'PUT');
+
+      // Append image file if a new one was selected
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
+
       const res = await fetch(`http://127.0.0.1:8000/api/admin/products/${selectedProduct.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editForm),
+        method: 'POST', // POST with _method=PUT for file upload support
+        body: formData,
+        // NO Content-Type header — browser sets multipart/form-data automatically
       });
+
       if (res.ok) {
         const updated = await res.json();
-        setProducts(prev => prev.map(p => p.id === selectedProduct.id ? { ...p, ...editForm } : p));
-        setSelectedProduct({ ...selectedProduct, ...editForm });
+        // Merge the returned data with our local state
+        const merged = { ...selectedProduct, ...updated.data, ...editForm };
+        if (updated.data?.image) merged.image = updated.data.image;
+        setProducts(prev => prev.map(p => p.id === selectedProduct.id ? merged : p));
+        setSelectedProduct(merged);
+        setEditForm({ ...merged });
         setIsEditing(false);
+        setImageFile(null);
+        setImagePreview(null);
       } else {
         const errData = await res.json().catch(() => ({}));
         setSaveError(errData.message || 'Failed to save product');
@@ -844,14 +1282,9 @@ const page = () => {
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <div
-                key={index}
-                className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm"
-              >
+              <div key={index} className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
                 <div className="flex items-center justify-between mb-3">
-                  <div
-                    className={`w-10 h-10 rounded-xl ${stat.color} flex items-center justify-center`}
-                  >
+                  <div className={`w-10 h-10 rounded-xl ${stat.color} flex items-center justify-center`}>
                     <Icon className="w-5 h-5" />
                   </div>
                   <TrendingUp className="w-4 h-4 text-gray-400" />
@@ -919,52 +1352,29 @@ const page = () => {
                 <thead>
                   <tr className="bg-gray-50/50 border-b border-gray-100">
                     <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      <button
-                        onClick={() => handleSort("name")}
-                        className="flex items-center gap-1 hover:text-gray-700 transition-colors"
-                      >
-                        Product
-                        <ArrowUpDown className="w-3.5 h-3.5" />
+                      <button onClick={() => handleSort("name")} className="flex items-center gap-1 hover:text-gray-700 transition-colors">
+                        Product <ArrowUpDown className="w-3.5 h-3.5" />
                       </button>
                     </th>
-                    <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                      SKU
-                    </th>
-                    <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden lg:table-cell">
-                      Category
-                    </th>
+                    <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">SKU</th>
+                    <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden lg:table-cell">Category</th>
                     <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      <button
-                        onClick={() => handleSort("stock")}
-                        className="flex items-center gap-1 hover:text-gray-700 transition-colors"
-                      >
-                        Stock
-                        <ArrowUpDown className="w-3.5 h-3.5" />
+                      <button onClick={() => handleSort("stock")} className="flex items-center gap-1 hover:text-gray-700 transition-colors">
+                        Stock <ArrowUpDown className="w-3.5 h-3.5" />
                       </button>
                     </th>
                     <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      <button
-                        onClick={() => handleSort("price")}
-                        className="flex items-center gap-1 hover:text-gray-700 transition-colors"
-                      >
-                        Price
-                        <ArrowUpDown className="w-3.5 h-3.5" />
+                      <button onClick={() => handleSort("price")} className="flex items-center gap-1 hover:text-gray-700 transition-colors">
+                        Price <ArrowUpDown className="w-3.5 h-3.5" />
                       </button>
                     </th>
-                    <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-4 sm:px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
+                    <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-4 sm:px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {paginatedProducts.map((product) => (
-                    <tr
-                      key={product.id}
-                      className="hover:bg-gray-50/50 transition-colors group"
-                    >
+                    <tr key={product.id} className="hover:bg-gray-50/50 transition-colors group">
                       <td className="px-4 sm:px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden shrink-0">
@@ -974,78 +1384,47 @@ const page = () => {
                               className="w-full h-full object-cover"
                               onError={(e) => {
                                 e.target.style.display = "none";
-                                e.target.parentElement.innerHTML =
-                                  '<div class="w-full h-full flex items-center justify-center text-gray-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>';
+                                e.target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>';
                               }}
                             />
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm font-semibold text-gray-900 truncate">
-                              {product.name}
-                            </p>
-                            <p className="text-xs text-gray-500 md:hidden">
-                              {product.sku}
-                            </p>
+                            <p className="text-sm font-semibold text-gray-900 truncate">{product.name}</p>
+                            <p className="text-xs text-gray-500 md:hidden">{product.sku}</p>
                           </div>
                         </div>
                       </td>
                       <td className="px-4 sm:px-6 py-4 text-sm text-gray-600 hidden md:table-cell">
-                        <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded-md">
-                          {product.sku}
-                        </span>
+                        <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded-md">{product.sku}</span>
                       </td>
                       <td className="px-4 sm:px-6 py-4 hidden lg:table-cell">
                         <span className="inline-flex items-center gap-1.5 text-sm text-gray-600">
-                          <Tag className="w-3.5 h-3.5 text-gray-400" />
-                          {product.category}
+                          <Tag className="w-3.5 h-3.5 text-gray-400" />{product.category}
                         </span>
                       </td>
                       <td className="px-4 sm:px-6 py-4">
                         <div className="flex items-center gap-2">
                           <Box className="w-3.5 h-3.5 text-gray-400" />
-                          <span
-                            className={`text-sm font-medium ${getStockColor(product.stock, product.status)}`}
-                          >
-                            {product.stock}
-                          </span>
+                          <span className={`text-sm font-medium ${getStockColor(product.stock, product.status)}`}>{product.stock}</span>
                         </div>
                       </td>
                       <td className="px-4 sm:px-6 py-4">
-                        <span className="text-sm font-semibold text-gray-900">
-                          ${parseFloat(product.price).toFixed(2)}
-                        </span>
+                        <span className="text-sm font-semibold text-gray-900">${parseFloat(product.price).toFixed(2)}</span>
                       </td>
                       <td className="px-4 sm:px-6 py-4">
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusStyles(product.status)}`}
-                        >
-                          {getStatusIcon(product.status)}
-                          {product.status}
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusStyles(product.status)}`}>
+                          {getStatusIcon(product.status)}{product.status}
                         </span>
                       </td>
                       <td className="px-4 sm:px-6 py-4">
                         <div className="flex items-center justify-end gap-1">
-                          {/* View button - opens detail modal in view mode */}
-                          <button
-                            onClick={() => openProductDetail(product, false)}
-                            className="p-2 rounded-lg text-gray-400 hover:text-slate-900 hover:bg-gray-100 transition-all"
-                            title="View"
-                          >
+                          <button onClick={() => openProductDetail(product, false)} className="p-2 rounded-lg text-gray-400 hover:text-slate-900 hover:bg-gray-100 transition-all" title="View">
                             <Eye className="w-4 h-4" />
                           </button>
-                          {/* Edit button - opens detail modal in edit mode */}
-                          <button
-                            onClick={() => openProductDetail(product, true)}
-                            className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
-                            title="Edit"
-                          >
+                          <button onClick={() => openProductDetail(product, true)} className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all" title="Edit">
                             <Pencil className="w-4 h-4" />
                           </button>
-                          <button
-                            onClick={() => handleDelete(product)}
-                            className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all"
-                            title="Delete"
-                          >
+                          <button onClick={() => handleDelete(product)} className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all" title="Delete">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
@@ -1059,20 +1438,9 @@ const page = () => {
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                   <Package className="w-8 h-8 text-gray-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                  No products found
-                </h3>
-                <p className="text-sm text-gray-500 mb-4">
-                  Try adjusting your search or filters
-                </p>
-                <button
-                  onClick={() => {
-                    setSearchQuery("");
-                    setCategoryFilter("all");
-                    setStatusFilter("all");
-                  }}
-                  className="text-sm font-medium text-slate-900 hover:underline"
-                >
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">No products found</h3>
+                <p className="text-sm text-gray-500 mb-4">Try adjusting your search or filters</p>
+                <button onClick={() => { setSearchQuery(""); setCategoryFilter("all"); setStatusFilter("all"); }} className="text-sm font-medium text-slate-900 hover:underline">
                   Clear all filters
                 </button>
               </div>
@@ -1083,50 +1451,18 @@ const page = () => {
           {totalPages > 1 && (
             <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-t border-gray-100">
               <p className="text-sm text-gray-500 hidden sm:block">
-                Showing{" "}
-                <span className="font-medium text-gray-900">
-                  {(currentPage - 1) * itemsPerPage + 1}
-                </span>{" "}
-                to{" "}
-                <span className="font-medium text-gray-900">
-                  {Math.min(currentPage * itemsPerPage, sortedProducts.length)}
-                </span>{" "}
-                of{" "}
-                <span className="font-medium text-gray-900">
-                  {sortedProducts.length}
-                </span>{" "}
-                products
+                Showing <span className="font-medium text-gray-900">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-medium text-gray-900">{Math.min(currentPage * itemsPerPage, sortedProducts.length)}</span> of <span className="font-medium text-gray-900">{sortedProducts.length}</span> products
               </p>
               <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                  className="p-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                >
+                <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                   <ChevronLeft className="w-4 h-4" />
                 </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (page) => (
-                    <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`min-w-[36px] h-9 px-3 rounded-lg text-sm font-medium transition-colors ${
-                        currentPage === page
-                          ? "bg-slate-900 text-white"
-                          : "text-gray-600 hover:bg-gray-50 border border-gray-200"
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ),
-                )}
-                <button
-                  onClick={() =>
-                    setCurrentPage((p) => Math.min(totalPages, p + 1))
-                  }
-                  disabled={currentPage === totalPages}
-                  className="p-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                >
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button key={page} onClick={() => setCurrentPage(page)} className={`min-w-[36px] h-9 px-3 rounded-lg text-sm font-medium transition-colors ${currentPage === page ? "bg-slate-900 text-white" : "text-gray-600 hover:bg-gray-50 border border-gray-200"}`}>
+                    {page}
+                  </button>
+                ))}
+                <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="p-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
@@ -1135,60 +1471,34 @@ const page = () => {
         </div>
       </div>
 
-      {/* Product Detail / Edit Modal */}
+      {/* ========== PRODUCT DETAIL / EDIT MODAL ========== */}
       {showDetailModal && selectedProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={closeProductDetail}
-          />
+          <div className="absolute inset-0 bg-black/40" onClick={closeProductDetail} />
           <div className="relative bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between z-10 rounded-t-2xl">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center">
-                  {isEditing ? (
-                    <Pencil className="w-5 h-5 text-white" />
-                  ) : (
-                    <Eye className="w-5 h-5 text-white" />
-                  )}
+                  {isEditing ? <Pencil className="w-5 h-5 text-white" /> : <Eye className="w-5 h-5 text-white" />}
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {isEditing ? "Edit Product" : "Product Details"}
-                  </h3>
-                  <p className="text-xs text-gray-500">
-                    {isEditing ? "Make changes and save" : "View product information"}
-                  </p>
+                  <h3 className="text-lg font-semibold text-gray-900">{isEditing ? "Edit Product" : "Product Details"}</h3>
+                  <p className="text-xs text-gray-500">{isEditing ? "Make changes and save" : "View product information"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 {!isEditing ? (
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    <Pencil className="w-4 h-4" />
-                    Edit
+                  <button onClick={() => setIsEditing(true)} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                    <Pencil className="w-4 h-4" /> Edit
                   </button>
                 ) : (
-                  <button
-                    onClick={handleSaveProduct}
-                    disabled={savingProduct}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-60"
-                  >
-                    {savingProduct ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Save className="w-4 h-4" />
-                    )}
+                  <button onClick={handleSaveProduct} disabled={savingProduct} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-60">
+                    {savingProduct ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     {savingProduct ? "Saving..." : "Save"}
                   </button>
                 )}
-                <button
-                  onClick={closeProductDetail}
-                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                >
+                <button onClick={closeProductDetail} className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
                   <X className="w-5 h-5 text-gray-400" />
                 </button>
               </div>
@@ -1198,44 +1508,87 @@ const page = () => {
             {saveError && (
               <div className="mx-6 mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-sm text-red-600 flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4" />
-                  {saveError}
+                  <AlertTriangle className="w-4 h-4" />{saveError}
                 </p>
               </div>
             )}
 
             {/* Modal Body */}
             <div className="p-6 space-y-6">
-              {/* Product Image */}
-              <div className="flex justify-center">
-                <div className="w-32 h-32 rounded-2xl bg-gray-100 overflow-hidden border border-gray-200">
-                  <img
-                    src={editForm.image || selectedProduct.image}
-                    alt={editForm.name || selectedProduct.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.style.display = "none";
-                      e.target.parentElement.innerHTML =
-                        '<div class="w-full h-full flex items-center justify-center text-gray-400"><svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>';
-                    }}
-                  />
+              {/* ===== IMAGE SECTION ===== */}
+              <div className="flex flex-col items-center gap-4">
+                {/* Image Preview */}
+                <div className="w-40 h-40 rounded-2xl bg-gray-100 overflow-hidden border border-gray-200 relative">
+                  {(imagePreview || editForm.image || selectedProduct.image) ? (
+                    <img
+                      src={imagePreview || editForm.image || selectedProduct.image}
+                      alt={editForm.name || selectedProduct.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                        e.target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400"><svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>';
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      <ImageIcon className="w-10 h-10" />
+                    </div>
+                  )}
+                  {/* Remove button */}
+                  {isEditing && (imagePreview || editForm.image || selectedProduct.image) && (
+                    <button
+                      onClick={removeImage}
+                      className="absolute top-2 right-2 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-md"
+                      title="Remove image"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
+
+                {/* Upload Area — Edit Mode Only */}
+                {isEditing && (
+                  <div className="w-full max-w-sm">
+                    <div
+                      onDragEnter={handleDrag}
+                      onDragLeave={handleDrag}
+                      onDragOver={handleDrag}
+                      onDrop={handleDrop}
+                      onClick={() => document.getElementById('edit-image-input').click()}
+                      className={`flex flex-col items-center justify-center w-full h-28 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+                        dragActive
+                          ? "border-emerald-400 bg-emerald-50"
+                          : "border-gray-300 bg-gray-50 hover:bg-gray-100 hover:border-gray-400"
+                      }`}
+                    >
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <Upload className="w-6 h-6 text-gray-400 mb-2" />
+                        <p className="text-xs text-gray-500 font-medium">
+                          Click to upload or drag and drop
+                        </p>
+                        <p className="text-[10px] text-gray-400 mt-1">
+                          PNG, JPG, WEBP up to 5MB
+                        </p>
+                      </div>
+                      <input
+                        id="edit-image-input"
+                        type="file"
+                        className="hidden"
+                        accept="image/png,image/jpeg,image/webp,image/jpg"
+                        onChange={handleFileInputChange}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Form Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {/* Name */}
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
-                    Product Name
-                  </label>
+                  <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Product Name</label>
                   {isEditing ? (
-                    <input
-                      type="text"
-                      value={editForm.name || ''}
-                      onChange={(e) => handleEditChange('name', e.target.value)}
-                      className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"
-                    />
+                    <input type="text" value={editForm.name || ''} onChange={(e) => handleEditChange('name', e.target.value)} className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900" />
                   ) : (
                     <p className="text-sm font-semibold text-gray-900">{selectedProduct.name}</p>
                   )}
@@ -1243,101 +1596,55 @@ const page = () => {
 
                 {/* SKU */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
-                    SKU
-                  </label>
+                  <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">SKU</label>
                   {isEditing ? (
-                    <input
-                      type="text"
-                      value={editForm.sku || ''}
-                      onChange={(e) => handleEditChange('sku', e.target.value)}
-                      className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 font-mono focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"
-                    />
+                    <input type="text" value={editForm.sku || ''} onChange={(e) => handleEditChange('sku', e.target.value)} className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 font-mono focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900" />
                   ) : (
-                    <span className="inline-block font-mono text-xs bg-gray-100 px-2 py-1 rounded-md text-gray-700">
-                      {selectedProduct.sku}
-                    </span>
+                    <span className="inline-block font-mono text-xs bg-gray-100 px-2 py-1 rounded-md text-gray-700">{selectedProduct.sku}</span>
                   )}
                 </div>
 
                 {/* Category */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
-                    Category
-                  </label>
+                  <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Category</label>
                   {isEditing ? (
-                    <input
-                      type="text"
-                      value={editForm.category || ''}
-                      onChange={(e) => handleEditChange('category', e.target.value)}
-                      className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"
-                    />
+                    <input type="text" value={editForm.category || ''} onChange={(e) => handleEditChange('category', e.target.value)} className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900" />
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 text-sm text-gray-600">
-                      <Tag className="w-3.5 h-3.5 text-gray-400" />
-                      {selectedProduct.category}
-                    </span>
+                    <span className="inline-flex items-center gap-1.5 text-sm text-gray-600"><Tag className="w-3.5 h-3.5 text-gray-400" />{selectedProduct.category}</span>
                   )}
                 </div>
 
                 {/* Price */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
-                    Price
-                  </label>
+                  <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Price</label>
                   {isEditing ? (
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={editForm.price || ''}
-                        onChange={(e) => handleEditChange('price', e.target.value)}
-                        className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"
-                      />
+                      <input type="number" step="0.01" min="0" value={editForm.price || ''} onChange={(e) => handleEditChange('price', e.target.value)} className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900" />
                     </div>
                   ) : (
-                    <p className="text-sm font-semibold text-gray-900">
-                      ${parseFloat(selectedProduct.price).toFixed(2)}
-                    </p>
+                    <p className="text-sm font-semibold text-gray-900">${parseFloat(selectedProduct.price).toFixed(2)}</p>
                   )}
                 </div>
 
                 {/* Stock */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
-                    Stock
-                  </label>
+                  <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Stock</label>
                   {isEditing ? (
                     <div className="relative">
                       <Box className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input
-                        type="number"
-                        min="0"
-                        value={editForm.stock || ''}
-                        onChange={(e) => handleEditChange('stock', e.target.value)}
-                        className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"
-                      />
+                      <input type="number" min="0" value={editForm.stock || ''} onChange={(e) => handleEditChange('stock', e.target.value)} className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900" />
                     </div>
                   ) : (
-                    <p className={`text-sm font-semibold ${getStockColor(selectedProduct.stock, selectedProduct.status)}`}>
-                      {selectedProduct.stock} units
-                    </p>
+                    <p className={`text-sm font-semibold ${getStockColor(selectedProduct.stock, selectedProduct.status)}`}>{selectedProduct.stock} units</p>
                   )}
                 </div>
 
                 {/* Status */}
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
-                    Status
-                  </label>
+                  <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Status</label>
                   {isEditing ? (
-                    <select
-                      value={editForm.status || ''}
-                      onChange={(e) => handleEditChange('status', e.target.value)}
-                      className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 cursor-pointer"
-                    >
+                    <select value={editForm.status || ''} onChange={(e) => handleEditChange('status', e.target.value)} className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 cursor-pointer">
                       <option value="Active">Active</option>
                       <option value="Inactive">Inactive</option>
                       <option value="Low Stock">Low Stock</option>
@@ -1345,50 +1652,18 @@ const page = () => {
                     </select>
                   ) : (
                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusStyles(selectedProduct.status)}`}>
-                      {getStatusIcon(selectedProduct.status)}
-                      {selectedProduct.status}
+                      {getStatusIcon(selectedProduct.status)}{selectedProduct.status}
                     </span>
                   )}
                 </div>
 
                 {/* Description */}
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
-                    Description
-                  </label>
+                  <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Description</label>
                   {isEditing ? (
-                    <textarea
-                      rows={3}
-                      value={editForm.description || ''}
-                      onChange={(e) => handleEditChange('description', e.target.value)}
-                      className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 resize-none"
-                      placeholder="Enter product description..."
-                    />
+                    <textarea rows={3} value={editForm.description || ''} onChange={(e) => handleEditChange('description', e.target.value)} className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 resize-none" placeholder="Enter product description..." />
                   ) : (
-                    <p className="text-sm text-gray-600 leading-relaxed">
-                      {selectedProduct.description || "No description available."}
-                    </p>
-                  )}
-                </div>
-
-                {/* Image URL */}
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
-                    Image URL
-                  </label>
-                  {isEditing ? (
-                    <div className="relative">
-                      <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input
-                        type="text"
-                        value={editForm.image || ''}
-                        onChange={(e) => handleEditChange('image', e.target.value)}
-                        className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900"
-                        placeholder="https://..."
-                      />
-                    </div>
-                  ) : (
-                    <p className="text-xs text-gray-400 truncate">{selectedProduct.image || "No image"}</p>
+                    <p className="text-sm text-gray-600 leading-relaxed">{selectedProduct.description || "No description available."}</p>
                   )}
                 </div>
               </div>
@@ -1396,34 +1671,16 @@ const page = () => {
               {/* Footer Actions */}
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
                 {isEditing && (
-                  <button
-                    onClick={() => {
-                      setEditForm({ ...selectedProduct });
-                      setIsEditing(false);
-                      setSaveError(null);
-                    }}
-                    className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
+                  <button onClick={() => { setEditForm({ ...selectedProduct }); setIsEditing(false); setSaveError(null); setImageFile(null); setImagePreview(null); }} className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                     Cancel
                   </button>
                 )}
-                <button
-                  onClick={closeProductDetail}
-                  className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                >
+                <button onClick={closeProductDetail} className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                   Close
                 </button>
                 {isEditing && (
-                  <button
-                    onClick={handleSaveProduct}
-                    disabled={savingProduct}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-60"
-                  >
-                    {savingProduct ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Save className="w-4 h-4" />
-                    )}
+                  <button onClick={handleSaveProduct} disabled={savingProduct} className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-60">
+                    {savingProduct ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     {savingProduct ? "Saving..." : "Save Changes"}
                   </button>
                 )}
@@ -1436,53 +1693,27 @@ const page = () => {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && productToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setShowDeleteModal(false)}
-          />
+          <div className="absolute inset-0 bg-black/40" onClick={() => setShowDeleteModal(false)} />
           <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Delete Product
-              </h3>
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
-              >
+              <h3 className="text-lg font-semibold text-gray-900">Delete Product</h3>
+              <button onClick={() => setShowDeleteModal(false)} className="p-1 rounded-lg hover:bg-gray-100 transition-colors">
                 <X className="w-5 h-5 text-gray-400" />
               </button>
             </div>
             <div className="flex items-center gap-4 mb-6">
               <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden shrink-0">
-                <img
-                  src={productToDelete.image }
-                  alt={productToDelete.name}
-                  className="w-full h-full object-cover"
-                />
+                <img src={productToDelete.image} alt={productToDelete.name} className="w-full h-full object-cover" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">
-                  Are you sure you want to delete{" "}
-                  <span className="font-semibold text-gray-900">
-                    {productToDelete.name}
-                  </span>
-                  ? This action cannot be undone.
+                  Are you sure you want to delete <span className="font-semibold text-gray-900">{productToDelete.name}</span>? This action cannot be undone.
                 </p>
               </div>
             </div>
             <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shadow-sm"
-              >
-                Delete Product
-              </button>
+              <button onClick={() => setShowDeleteModal(false)} className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">Cancel</button>
+              <button onClick={confirmDelete} className="px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shadow-sm">Delete Product</button>
             </div>
           </div>
         </div>

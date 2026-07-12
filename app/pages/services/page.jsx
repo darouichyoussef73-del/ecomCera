@@ -1,129 +1,8 @@
-// import React from 'react'
-// import Navbar from '../../components/navbar'
-// import Footer from '@/app/components/footer'
-// import Link from 'next/link'
-// const page = () => {
-//   return (
-//     <>
-//     <Navbar/>
-//      <section className="hero relative min-h-screen  ">
-   
-//       {/* Background Image */}
-//       <div className="absolute inset-0">
-       
-//         <video
-//                 src="/videos/hero.mp4"
-//                 poster="/images/hero1.jpeg"
-//                 autoPlay
-//                 muted
-//                 loop
-//                 playsInline
-//                   className="w-full h-full object-cover rounded-2xl"
-//                 // className="w-full h-48 md:h-64 object-cover rounded-3xl"
-//               >
-//                 Your browser does not support the video tag.
-//               </video>
-//         </div>
-    
 
-//       {/* Content */}
-//       <div className="relative z-10 container mx-auto px-6 lg:px-12 min-h-screen flex items-end pb-16">
-//         <div className="grid lg:grid-cols-2 gap-12 w-full items-end">
-//           {/* Left Content */}
-//           <div className="max-w-2xl">
-//             <h1 className="text-5xl md:text-7xl font-bold text-black leading-tight tracking-tight">
-//               A calmer way to care for your smile.
-//             </h1>
-
-//             <p className="mt-6 text-lg md:text-xl text-black/80 max-w-xl">
-//               Gentle dentistry designed to remove fear, build trust, and
-//               deliver confident, lasting results.
-//             </p>
-
-//             <div className="mt-10">
-//               <Link
-//                 href="/contact"
-//                 className="inline-flex items-center rounded-full bg-white px-8 py-4 text-black font-medium transition hover:bg-gray-200"
-//               >
-//                 Schedule a Visit
-//               </Link>
-//             </div>
-//           </div>
-
-//           {/* Right Content */}
-//           <div className="flex flex-col lg:items-end gap-6">
-//             {/* Testimonial Card */}
-//             <div className="max-w-sm rounded-3xl border border-white/20 bg-white/10 backdrop-blur-xl p-6">
-             
-
-//               <p className="text-black text-lg">
-//                 “It felt more like a wellness visit than a dental appointment.”
-//               </p>
-
-//               <p className="mt-3 text-black/70">— Sarah M.</p>
-
-             
-//             </div>
-
-//             {/* Video Card */}
-//                    </div>
-//         </div>
-//       </div>
-//     </section>
-
-//     <section >
-//       <h1 className='font-bold text-5xl text-center text-black py-15'>Our Services </h1>
-//     <div className='w-full h-screen min-h-fit flex  flex-wrap justify-center items-center gap-10  '>
-      
-//       <div className="relative w-1/4 min-w-100   h-4/5  overflow-hidden rounded-2xl  hover:scale-110 transition-all cursor-pointer">
-//      <img
-//     src="/images/img2.jpeg"
-//     alt="Product"
-//     className="w-full h-full object-cover  "
-//   />
-//   <div className="absolute inset-x-0 bottom-0 h-50 bg-linear-to-t from-black/90 via-black/40 to-transparent"></div>
-//   <h2 className="absolute bottom-6 left-6 text-white text-2xl font-bold">
-//     Join us in our work Shop
-//   </h2>
-// </div>
-//       <div className="relative w-1/4 min-w-100   h-4/5  overflow-hidden rounded-2xl  hover:scale-110 transition-all cursor-pointer">
-//      <img
-//     src="/images/img2.jpeg"
-//     alt="Product"
-//     className="w-full h-full object-cover  "
-//   />
-//   <div className="absolute inset-x-0 bottom-0 h-50 bg-linear-to-t from-black/90 via-black/40 to-transparent"></div>
-//   <h2 className="absolute bottom-6 left-6 text-white text-2xl font-bold">
-//     Join us in our work Shop
-//   </h2>
-// </div>
-//       <div className="relative w-1/4 min-w-100   h-4/5  overflow-hidden rounded-2xl  hover:scale-110 transition-all cursor-pointer">
-//      <img
-//     src="/images/img2.jpeg"
-//     alt="Product"
-//     className="w-full h-full object-cover  "
-//   />
-//   <div className="absolute inset-x-0 bottom-0 h-50 bg-linear-to-t from-black/90 via-black/40 to-transparent"></div>
-//   <h2 className="absolute bottom-6 left-6 text-white text-2xl font-bold">
-//     Join us in our work Shop
-//   </h2>
-// </div>
-
-   
-     
-      
-     
-//     </div>
-//     </section>
-//     <Footer/>
-//     </>
-//   )
-// }
-
-// export default page
 "use client";
 import React, { useRef, useEffect, useState, useCallback } from "react";
-import NavbarClient from "@/app/components/navbarClients";
+import { useRouter } from "next/navigation";
+import Navbar from "@/app/components/navbar";
 import Footer from "@/app/components/footer";
 
 // ============================================
@@ -498,6 +377,7 @@ const STORAGE_KEYS = {
   USER_PROFILE: "ceraStudio_userProfile",
   USE_USER_DATA: "ceraStudio_useUserData",
   USER: "user",
+  TOKEN: "token",
 };
 
 // ============================================
@@ -815,6 +695,11 @@ function useLocalStorageState(key, defaultValue) {
 // MAIN SERVICES PAGE COMPONENT
 // ============================================
 const page = () => {
+  const router = useRouter();
+
+  // --- AUTH STATE ---
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   // --- AUTHENTICATED USER STATE ---
   const [currentUser, setCurrentUser] = useState(null);
 
@@ -863,6 +748,12 @@ const page = () => {
 
   // Image upload state (file object, not stored)
   const [commissionImage, setCommissionImage] = useState(null);
+
+  // --- Check auth status ---
+  useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEYS.TOKEN) : null;
+    setIsLoggedIn(!!token);
+  }, []);
 
   // --- Load authenticated user from localStorage ---
   useEffect(() => {
@@ -1016,6 +907,13 @@ const page = () => {
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
+
+      // ===== VISITOR CHECK: redirect to account creation =====
+      if (!isLoggedIn) {
+        router.push('/pages/acountCreation');
+        return;
+      }
+
       setSubmitting(true);
       setError(null);
 
@@ -1026,8 +924,6 @@ const page = () => {
           commissionImage,
           currentUser?.id,
         );
-
-        // console.log("Booking submitted:", result);
 
         setSubmitting(false);
         setSubmitted(true);
@@ -1047,7 +943,7 @@ const page = () => {
             participants: "1",
             experience: "",
             workshopType: "beginner",
-              firingType: "",
+            firingType: "",
             pieceType: "",
             dimensions: "",
             glazePreference: "",
@@ -1071,6 +967,8 @@ const page = () => {
       clearStoredData,
       setFormData,
       setImagePreview,
+      isLoggedIn,
+      router,
     ],
   );
 
@@ -1448,15 +1346,15 @@ const page = () => {
   return (
     <div className="min-h-screen bg-[#faf7f3]">
 
-      <NavbarClient />
+      <Navbar />
       <section className="hero relative min-h-screen overflow-hidden " id=''>
-   
+
       {/* Background Image */}
       <div className="absolute inset-0">
-     
+
              <video
-                src="/videos/hero.mp4"
-                poster="/images/hero1.jpeg"
+                src="/videos/services.mp4"
+                poster="/images/services.jpeg"
                 autoPlay
                 muted
                 loop
@@ -1467,7 +1365,7 @@ const page = () => {
                 Your browser does not support the video tag.
               </video>
         </div>
-    
+
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-6 lg:px-12 min-h-screen flex items-end pb-16">
@@ -1483,27 +1381,27 @@ const page = () => {
               deliver confident, lasting results.
             </p>
 
-          
+
           </div>
 
           {/* Right Content */}
           <div className="flex flex-col lg:items-end gap-6">
             {/* Testimonial Card */}
             <div className="max-w-sm rounded-3xl border border-white/20 bg-white/10 backdrop-blur-xl p-6">
-             
+
 
               <p className="text-black text-lg">
-                “It felt more like a wellness visit than a dental appointment.”
+                "It felt more like a wellness visit than a dental appointment."
               </p>
 
               <p className="mt-3 text-black/70">— Sarah M.</p>
 
-             
+
             </div>
 
             {/* Video Card */}
             <div className="max-w-sm rounded-3xl overflow-hidden">
-              
+
             </div>
           </div>
         </div>
@@ -1668,6 +1566,23 @@ const page = () => {
                       >
                         {useUserData ? "Disable auto-fill" : "Enable auto-fill"}
                       </button>
+                    </div>
+                  )}
+
+                  {/* Visitor notice */}
+                  {isHydrated && !isLoggedIn && (
+                    <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                      <p className="text-sm text-amber-800">
+                        <strong>Sign in required.</strong> Please{" "}
+                        <button
+                          type="button"
+                          onClick={() => router.push('/pages/acountCreation')}
+                          className="underline font-medium text-amber-900 hover:text-amber-700"
+                        >
+                          create an account or sign in
+                        </button>{" "}
+                        to book a service.
+                      </p>
                     </div>
                   )}
 
