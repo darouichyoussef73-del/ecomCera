@@ -87,7 +87,9 @@ class BookingController extends Controller
                 'glaze_preference' => $data['glazePreference'] ?? null,
                 'message' => $data['message'] ?? null,
                 'newsletter' => isset($data['newsletter']) ? filter_var($data['newsletter'], FILTER_VALIDATE_BOOLEAN) : false,
+
                 'vision_image' => $data['vision_image'] ?? null,
+                'price' => $data['price'] ?? null,
                 'submitted_at' => $data['submittedAt'] ?? now(),
             ]);
 
@@ -175,6 +177,7 @@ class BookingController extends Controller
             'newsletter' => isset($data['newsletter']) ? filter_var($data['newsletter'], FILTER_VALIDATE_BOOLEAN) : $booking->newsletter,
             'vision_image' => $data['vision_image'] ?? $booking->vision_image,
             'submitted_at' => $data['submittedAt'] ?? $booking->submitted_at,
+            'price' => $data['price'] ?? $booking->price,
         ]);
 
         return response()->json([

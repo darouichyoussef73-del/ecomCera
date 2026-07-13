@@ -1372,29 +1372,26 @@ const page = () => {
         <div className="grid lg:grid-cols-2 gap-12 w-full items-end">
           {/* Left Content */}
           <div className="max-w-2xl mb-10">
-            <h1 className="text-5xl md:text-7xl font-bold text-black leading-tight tracking-tight ">
-              A calmer way to care for your smile.
-            </h1>
-
-            <p className="mt-6 text-lg md:text-xl text-black/80 max-w-xl">
-              Gentle dentistry designed to remove fear, build trust, and
-              deliver confident, lasting results.
-            </p>
-
-
-          </div>
+              <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight tracking-tight">
+                shape your creativity.
+              </h1>
+              <p className="mt-6 text-lg md:text-xl text-white/80 max-w-xl">
+                A welcoming pottery studio designed to inspire creativity, build skills, and
+                craft beautiful, lasting ceramics.
+              </p>
+            </div>
 
           {/* Right Content */}
-          <div className="flex flex-col lg:items-end gap-6">
+            <div className="flex flex-col lg:items-end gap-6">
             {/* Testimonial Card */}
             <div className="max-w-sm rounded-3xl border border-white/20 bg-white/10 backdrop-blur-xl p-6">
 
 
               <p className="text-black text-lg">
-                "It felt more like a wellness visit than a dental appointment."
+                "Every piece feels like a small work of art crafted with soul and precision."
               </p>
 
-              <p className="mt-3 text-black/70">— Sarah M.</p>
+
 
 
             </div>

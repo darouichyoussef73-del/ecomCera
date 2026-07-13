@@ -215,29 +215,29 @@ const page = () => {
   const itemsPerPage = 6;
 
   // Get user data from localStorage on mount
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
+  // useEffect(() => {
+  //   const storedUser = localStorage.getItem("user");
 
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      } catch (err) {
-        console.error("Failed to parse user data from localStorage:", err);
-        setError("User session invalid. Please log in again.");
-        setLoading(false);
-      }
-    } else {
-      setError("Please log in to view your bookings.");
-      setLoading(false);
-    }
-  }, []);
+  //   if (storedUser) {
+  //     try {
+  //       const parsedUser = JSON.parse(storedUser);
+  //       setUser(parsedUser);
+  //     } catch (err) {
+  //       console.error("Refreche .");
+       
+  //       setLoading(false);
+  //     }
+  //   } else {
+  //     setError("Refreche.");
+  //     setLoading(false);
+  //   }
+  // }, []);
 
   // Fetch bookings from API when user is available
   useEffect(() => {
-    if (user) {
+  
       fetchBookings();
-    }
+    
   }, [user]);
 
   useEffect(() => {
@@ -642,24 +642,7 @@ const page = () => {
   };
 
   // Not logged in state
-  if (!user && loading) {
-    return (
-      <div className="min-h-screen cera-bg flex items-center justify-center p-4">
-        <div className="cera-card rounded-3xl p-8 text-center max-w-md">
-          <div className="w-16 h-16 bg-[#F0EBE3] rounded-full flex items-center justify-center mx-auto mb-4">
-            <User className="w-8 h-8 text-[#B8916A]" />
-          </div>
-          <h3 className="text-lg font-serif font-semibold cera-text-primary mb-2">
-            Not Logged In
-          </h3>
-          <p className="text-sm cera-text-secondary">
-            Please log in to view your bookings.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
+ 
   if (loading) {
     return (
       <div className="min-h-screen cera-bg flex items-center justify-center">
@@ -702,22 +685,7 @@ const page = () => {
             </button>
           </div>
 
-          <div className="mt-6 text-left text-xs cera-text-secondary space-y-1">
-            <p className="font-semibold">Troubleshooting steps:</p>
-            <p>
-              1. Run:{" "}
-              <code className="bg-gray-100 px-1 rounded">
-                php artisan route:clear
-              </code>
-            </p>
-            <p>
-              2. Check:{" "}
-              <code className="bg-gray-100 px-1 rounded">
-                php artisan route:list | grep bookings
-              </code>
-            </p>
-            <p>3. Ensure your route uses GET method in routes/api.php</p>
-          </div>
+          
         </div>
       </div>
     );

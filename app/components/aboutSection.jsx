@@ -590,7 +590,7 @@ const Page = () => {
 
                   {/* Process Steps */}
                   <Reveal delay="reveal-delay-4">
-                    <div className="mt-10 lg:mt-12 flex flex-wrap justify-center gap-6 sm:gap-8 lg:gap-16 max-w-3xl mx-auto">
+                    <div className="mt-10 lg:mt-12 flex flex-wrap justify-center gap-6 sm:gap-8 lg:gap-10 max-w-3xl mx-auto">
                       {[
                         { num: '1', title: 'Design', desc: 'Sketch your vision' },
                         { num: '2', title: 'Shape', desc: 'Hand-throw on wheel' },
@@ -659,28 +659,7 @@ const Page = () => {
                       </p>
                     </Reveal>
 
-                    {/* Contact Info Cards */}
-                    <Reveal delay="reveal-delay-2">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                        {[
-                          { icon: <MailIcon />, title: 'Email', info: 'hello@cerastudio.com' },
-                          { icon: <PhoneIcon />, title: 'Phone', info: '+1 (555) 234-5678' },
-                          { icon: <MapPinIcon />, title: 'Location', info: '42 Artisan Lane, Portland' },
-                          { icon: <ClockIcon />, title: 'Hours', info: 'Tue–Sun, 10am–6pm' },
-                        ].map((contact, i) => (
-                          <div key={i} className="glass-card p-4 sm:p-5 flex items-start gap-3 sm:gap-4 hover:bg-[#E8E0D5]/30 transition-all cursor-pointer group">
-                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#E8E0D5]/60 flex items-center justify-center text-[#B8916A] group-hover:scale-110 transition-transform flex-shrink-0">
-                              {contact.icon}
-                            </div>
-                            <div className="text-left min-w-0">
-                              <div className="text-sm font-medium text-[#3D3228]">{contact.title}</div>
-                              <div className="text-xs sm:text-sm text-[#8A7E72] truncate">{contact.info}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </Reveal>
-
+                  
                     {/* CTA Buttons */}
                     <Reveal delay="reveal-delay-3">
                       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 justify-center lg:justify-start">
@@ -691,26 +670,7 @@ const Page = () => {
                       </div>
                     </Reveal>
 
-                    {/* Social Links */}
-                    <Reveal delay="reveal-delay-4">
-                      <div className="flex items-center gap-3 sm:gap-4 pt-4 justify-center lg:justify-start">
-                        <span className="text-sm text-[#8A7E72]">Follow us:</span>
-                        {[
-                          { icon: <FacebookIcon />, label: 'Facebook' },
-                          { icon: <InstagramIcon />, label: 'Instagram' },
-                          { icon: <TwitterIcon />, label: 'Twitter' },
-                        ].map((social, i) => (
-                          <a
-                            key={i}
-                            href="#"
-                            aria-label={social.label}
-                            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl glass-card flex items-center justify-center text-[#8A7E72] hover:text-[#B8916A] hover:bg-[#E8E0D5]/40 transition-all"
-                          >
-                            {social.icon}
-                          </a>
-                        ))}
-                      </div>
-                    </Reveal>
+                   
                   </div>
                 </div>
               </div>

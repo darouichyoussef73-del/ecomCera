@@ -34,7 +34,7 @@ const scrolleItems = () => {
       <div className='relative w-70 h-60 bg-gray-400 rounded-2xl '>
       <img src="/images/cera.jpeg" alt="" className="w-full h-full rounded-2xl object-cover group-hover:scale-105 transition duration-700"/>
       </div><div className='w-70 h-60 bg-gray-500 rounded-2xl'>
-      <img src="/images/backgound.jpeg" alt="" className="w-full h-full rounded-2xl object-cover group-hover:scale-105 transition duration-700"/></div>
+      <img src="/images/backgound.jpg" alt="" className="w-full h-full rounded-2xl object-cover group-hover:scale-105 transition duration-700"/></div>
      
       <div className='relative w-70 h-60 bg-gray-400 rounded-2xl '>
       <img src="/images/img1.jpeg" alt="" className="w-full h-full rounded-2xl object-cover group-hover:scale-105 transition duration-700"/>

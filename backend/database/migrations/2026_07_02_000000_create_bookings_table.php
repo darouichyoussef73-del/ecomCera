@@ -28,6 +28,7 @@ return new class extends Migration
             $table->string('status')->default('new');
             $table->timestamp('submitted_at')->nullable();
             $table->timestamps();
+            $table->decimal('price', 10, 2)->nullable();
         });
     }
 

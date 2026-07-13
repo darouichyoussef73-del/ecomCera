@@ -28,11 +28,13 @@ class Booking extends Model
         'newsletter',
         'vision_image',
         'submitted_at',
+        'price',
     ];
 
     protected $casts = [
         'newsletter' => 'boolean',
         'submitted_at' => 'datetime',
+        'price' => 'decimal:2',
     ];
 
     public function user(): BelongsTo

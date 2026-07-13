@@ -2,7 +2,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { UserProvider } from "./context/UserContext";
-
+import AuthRedirect from "./components/AuthRedirect";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,16 +20,18 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-
   return (
     <html
-   data-scroll-behavior="smooth"
+      data-scroll-behavior="smooth"
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col ">
-         <UserProvider>{children}</UserProvider>
-        </body>
+      <body className="min-h-full flex flex-col">
+        <UserProvider>
+          <AuthRedirect />
+          {children}
+        </UserProvider>
+      </body>
     </html>
   );
 }

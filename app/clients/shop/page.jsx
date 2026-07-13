@@ -629,7 +629,7 @@ const Page = () => {
                 <>
                   {/* STEP 1: SHIPPING */}
                   {checkoutStep === 1 && (
-                    <div className="space-y-4">
+                    <div className="space-y-4 text-black">
                       {/* Show logged-in user badge */}
                       {currentUser && (
                         <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-xl flex items-center gap-2">
@@ -740,7 +740,7 @@ const Page = () => {
 
                   {/* STEP 2: PAYMENT */}
                   {checkoutStep === 2 && (
-                    <div className="space-y-4">
+                    <div className="space-y-4 text-black">
                       <div className="space-y-2">
                         {['card', 'paypal', 'cod'].map((method) => (
                           <label key={method}
